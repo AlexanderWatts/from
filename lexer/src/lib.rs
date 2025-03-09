@@ -25,6 +25,10 @@ impl Lexer {
     }
 
     fn scan(&self) -> TokenType {
+        while let Some(' ') = self.peek_char() {
+            self.next_char();
+        }
+
         self.start.set(self.current.get());
 
         match self.next_char() {
@@ -67,7 +71,7 @@ mod lexer {
 
     #[test]
     fn tokenize_input() {
-        let lexer = Lexer::new("div{}");
+        let lexer = Lexer::new("div {}");
 
         assert_eq!(Token::new(TokenType::Div), lexer.token());
         assert_eq!(Token::new(TokenType::LeftBrace), lexer.token());
