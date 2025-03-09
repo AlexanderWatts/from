@@ -13,7 +13,7 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(&self, token_type: TokenType) -> Self {
+    pub fn new(token_type: TokenType) -> Self {
         Self { token_type }
     }
 }
