@@ -22,6 +22,8 @@ impl Lexer {
         self.start.set(self.current.get());
 
         match self.next_char() {
+            Some('{') => TokenType::LeftBrace,
+            Some('}') => TokenType::RightBrace,
             Some('a'..='z' | 'A'..='Z') => {
                 while let Some('a'..='z' | 'A'..='Z') = self.peek_char() {
                     self.next_char();
@@ -56,6 +58,12 @@ impl Lexer {
 #[cfg(test)]
 mod lexer {
     use super::*;
+
+    #[test]
+    fn identify_core_characters() {
+        assert_eq!(TokenType::LeftBrace, Lexer::new("{").scan());
+        assert_eq!(TokenType::RightBrace, Lexer::new("}").scan());
+    }
 
     #[test]
     fn identify_keywords() {
