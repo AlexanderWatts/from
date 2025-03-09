@@ -4,7 +4,7 @@ use std::cell::Cell;
 pub struct Lexer {
     input: Vec<char>,
     start: Cell<usize>,
-    end: Cell<usize>,
+    current: Cell<usize>,
 }
 
 impl Lexer {
@@ -12,20 +12,20 @@ impl Lexer {
         Self {
             input: input.chars().collect(),
             start: Cell::new(0),
-            end: Cell::new(0),
+            current: Cell::new(0),
         }
     }
 
     fn next_char(&self) -> Option<&char> {
-        let next_char = self.input.get(self.start.get());
+        let next_char = self.input.get(self.current.get());
 
-        self.end.set(self.end.get() + 1);
+        self.current.set(self.current.get() + 1);
 
         next_char
     }
 
     fn peek_char(&self) -> Option<&char> {
-        self.input.get(self.start.get())
+        self.input.get(self.current.get())
     }
 }
 
@@ -52,7 +52,7 @@ mod lexer {
             Lexer {
                 input: vec!['d', 'i', 'v', ' ', '{', '}'],
                 start: Cell::new(0),
-                end: Cell::new(0),
+                current: Cell::new(0),
             },
             Lexer::new("div {}")
         );
