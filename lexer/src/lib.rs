@@ -3,15 +3,29 @@ use std::cell::Cell;
 #[derive(Debug, PartialEq)]
 pub struct Lexer {
     input: Vec<char>,
-    index: Cell<usize>,
+    start: Cell<usize>,
+    end: Cell<usize>,
 }
 
 impl Lexer {
     pub fn new(input: &str) -> Self {
         Self {
             input: input.chars().collect(),
-            index: Cell::new(0),
+            start: Cell::new(0),
+            end: Cell::new(0),
         }
+    }
+
+    fn next_char(&self) -> Option<&char> {
+        let next_char = self.input.get(self.start.get());
+
+        self.end.set(self.end.get() + 1);
+
+        next_char
+    }
+
+    fn peek_char(&self) -> Option<&char> {
+        self.input.get(self.start.get())
     }
 }
 
@@ -20,11 +34,25 @@ mod lexer {
     use super::*;
 
     #[test]
+    fn peek_char() {
+        let lexer = Lexer::new("div {}");
+
+        assert_eq!(Some(&'d'), lexer.peek_char());
+        assert_eq!(Some(&'d'), lexer.peek_char());
+    }
+
+    #[test]
+    fn consume_next_char() {
+        assert_eq!(Some(&'d'), Lexer::new("div {}").next_char());
+    }
+
+    #[test]
     fn new() {
         assert_eq!(
             Lexer {
                 input: vec!['d', 'i', 'v', ' ', '{', '}'],
-                index: Cell::new(0),
+                start: Cell::new(0),
+                end: Cell::new(0),
             },
             Lexer::new("div {}")
         );
