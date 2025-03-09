@@ -1,6 +1,7 @@
 #[derive(Debug, PartialEq)]
 pub enum TokenType {
     Div,
+    Span,
     LeftBrace,
     RightBrace,
     Error,
