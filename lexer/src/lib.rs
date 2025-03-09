@@ -1,5 +1,7 @@
 use std::cell::Cell;
 
+use token::TokenType;
+
 #[derive(Debug, PartialEq)]
 pub struct Lexer {
     input: Vec<char>,
@@ -13,6 +15,28 @@ impl Lexer {
             input: input.chars().collect(),
             start: Cell::new(0),
             current: Cell::new(0),
+        }
+    }
+
+    fn scan(&self) -> TokenType {
+        self.start.set(self.current.get());
+
+        match self.next_char() {
+            Some('a'..'z' | 'A'..'Z') => {
+                while let Some('a'..'z' | 'A'..'Z') = self.peek_char() {
+                    self.next_char();
+                }
+
+                match self.input.get(self.start.get()..self.current.get()) {
+                    Some(word) => match word.into_iter().collect::<String>().as_str() {
+                        "div" => TokenType::Div,
+                        "span" => TokenType::Span,
+                        _ => return TokenType::Error,
+                    },
+                    _ => return TokenType::Error,
+                }
+            }
+            _ => TokenType::Error,
         }
     }
 
@@ -32,6 +56,13 @@ impl Lexer {
 #[cfg(test)]
 mod lexer {
     use super::*;
+
+    #[test]
+    fn identify_keywords() {
+        assert_eq!(TokenType::Div, Lexer::new("div").scan());
+        assert_eq!(TokenType::Span, Lexer::new("span").scan());
+        assert_eq!(TokenType::Error, Lexer::new("something").scan());
+    }
 
     #[test]
     fn peek_char() {
