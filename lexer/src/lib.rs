@@ -1,6 +1,6 @@
 use std::cell::Cell;
 
-use token::TokenType;
+use token::{Token, TokenType};
 
 #[derive(Debug, PartialEq)]
 pub struct Lexer {
@@ -16,6 +16,12 @@ impl Lexer {
             start: Cell::new(0),
             current: Cell::new(0),
         }
+    }
+
+    pub fn token(&self) -> Token {
+        let token_type = self.scan();
+
+        Token::new(token_type)
     }
 
     fn scan(&self) -> TokenType {
@@ -58,6 +64,15 @@ impl Lexer {
 #[cfg(test)]
 mod lexer {
     use super::*;
+
+    #[test]
+    fn tokenize_input() {
+        let lexer = Lexer::new("div{}");
+
+        assert_eq!(Token::new(TokenType::Div), lexer.token());
+        assert_eq!(Token::new(TokenType::LeftBrace), lexer.token());
+        assert_eq!(Token::new(TokenType::RightBrace), lexer.token());
+    }
 
     #[test]
     fn identify_core_characters() {
