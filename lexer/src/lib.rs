@@ -22,8 +22,8 @@ impl Lexer {
         self.start.set(self.current.get());
 
         match self.next_char() {
-            Some('a'..'z' | 'A'..'Z') => {
-                while let Some('a'..'z' | 'A'..'Z') = self.peek_char() {
+            Some('a'..='z' | 'A'..='Z') => {
+                while let Some('a'..='z' | 'A'..='Z') = self.peek_char() {
                     self.next_char();
                 }
 
