@@ -22,6 +22,12 @@ pub struct Block {
     pub elements: Vec<Element>,
 }
 
+impl Block {
+    pub fn new(elements: Vec<Element>) -> Self {
+        Self { elements }
+    }
+}
+
 impl Default for Block {
     fn default() -> Self {
         Self { elements: vec![] }

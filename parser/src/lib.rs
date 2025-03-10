@@ -38,9 +38,21 @@ impl Parser {
     fn element_block(&self) -> Result<Block, ()> {
         self.next_or_err([TokenType::LeftBrace])?;
 
+        let mut elements: Vec<Element> = vec![];
+
+        while !matches!(
+            &*self.token_buffer.peek(),
+            Token {
+                token_type: TokenType::RightBrace,
+                ..
+            }
+        ) {
+            elements.push(self.element()?);
+        }
+
         self.next_or_err([TokenType::RightBrace])?;
 
-        Ok(Block::default())
+        Ok(Block::new(elements))
     }
 
     fn next_or_err<T>(&self, expected_token_types: T) -> Result<Token, ()>
@@ -74,6 +86,17 @@ mod parser {
 
     #[test]
     fn parse() {
+        assert_eq!(
+            Ok(Element {
+                block: Block {
+                    elements: vec![Element {
+                        block: Block { elements: vec![] }
+                    }]
+                }
+            }),
+            Parser::new("span{div{}}").parse(),
+        );
+
         assert_eq!(
             Ok(Element {
                 block: Block { elements: vec![] },
