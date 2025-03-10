@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 
 use lexer::Lexer;
 use token::Token;
@@ -15,6 +15,10 @@ impl TokenBuffer {
 
         Self { lexer, token }
     }
+
+    pub fn peek(&self) -> Ref<'_, Token> {
+        self.token.borrow()
+    }
 }
 
 #[cfg(test)]
@@ -22,6 +26,14 @@ mod token_buffer {
     use token::TokenType;
 
     use super::*;
+
+    #[test]
+    fn peek_current_token() {
+        let token_buffer = TokenBuffer::new("div {}");
+
+        assert_eq!(Token::new(TokenType::Div), *token_buffer.peek());
+        assert_eq!(Token::new(TokenType::Div), *token_buffer.peek());
+    }
 
     #[test]
     fn new() {
