@@ -1,4 +1,5 @@
 use lexer::Lexer;
+mod ast;
 
 ///
 /// Grammar
