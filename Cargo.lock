@@ -14,10 +14,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "node"
+version = "0.1.0"
+
+[[package]]
 name = "parser"
 version = "0.1.0"
 dependencies = [
  "lexer",
+ "node",
  "token",
 ]
 

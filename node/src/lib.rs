@@ -35,7 +35,7 @@ impl Default for Block {
 }
 
 #[cfg(test)]
-mod ast {
+mod node {
     use super::*;
 
     #[test]

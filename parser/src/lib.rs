@@ -1,7 +1,6 @@
-use ast::{Block, Element};
+use node::{Block, Element};
 use token::{Token, TokenType};
 use token_buffer::TokenBuffer;
-mod ast;
 mod token_buffer;
 
 ///
