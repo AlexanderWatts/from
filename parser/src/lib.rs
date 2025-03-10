@@ -1,5 +1,6 @@
 use ast::{Block, Element};
 use lexer::Lexer;
+use token::{Token, TokenType};
 mod ast;
 
 ///
@@ -26,17 +27,43 @@ impl Parser {
     }
 
     fn element(&self) -> Result<Element, ()> {
+        self.next_or_err([TokenType::Div, TokenType::Span])?;
+
         Ok(Element::default())
     }
 
     fn element_block(&self) -> Result<Block, ()> {
         Ok(Block::default())
     }
+
+    fn next_or_err<T>(&self, expected_token_types: T) -> Result<Token, ()>
+    where
+        T: IntoIterator<Item = TokenType>,
+    {
+        match self.lexer.token() {
+            token
+                if expected_token_types
+                    .into_iter()
+                    .any(|expected| expected == token.token_type) =>
+            {
+                Ok(token)
+            }
+            _ => Err(()),
+        }
+    }
 }
 
 #[cfg(test)]
 mod parser {
     use super::*;
+
+    #[test]
+    fn expect_token_type() {
+        assert_eq!(
+            Ok(Token::new(TokenType::Span)),
+            Parser::new("span {}").next_or_err([TokenType::Span, TokenType::Div])
+        );
+    }
 
     #[test]
     fn parse() {
