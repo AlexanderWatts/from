@@ -1,8 +1,8 @@
 use lexer::Lexer;
 
-/// 
+///
 /// Grammar
-/// 
+///
 /// program := element
 /// element := ('div' | 'span') element_block
 /// element_block := '{' element* '}'
@@ -19,4 +19,3 @@ impl Parser {
         }
     }
 }
-
