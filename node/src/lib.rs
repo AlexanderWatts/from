@@ -1,6 +1,21 @@
+pub trait NodeVisitor {
+    fn visit_element<T>(&self, element: &Element) -> T;
+    fn visit_block<T>(&self, block: &Block) -> T;
+}
+
+pub trait Node {
+    fn accept<T>(&self, node_visitor: &impl NodeVisitor) -> T;
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Element {
     pub block: Block,
+}
+
+impl Node for Element {
+    fn accept<T>(&self, node_visitor: &impl NodeVisitor) -> T {
+        node_visitor.visit_element(self)
+    }
 }
 
 impl Element {
@@ -20,6 +35,12 @@ impl Default for Element {
 #[derive(Debug, PartialEq)]
 pub struct Block {
     pub elements: Vec<Element>,
+}
+
+impl Node for Block {
+    fn accept<T>(&self, node_visitor: &impl NodeVisitor) -> T {
+        node_visitor.visit_block(self)
+    }
 }
 
 impl Block {
