@@ -3,6 +3,7 @@ use std::cell::{Ref, RefCell};
 use lexer::Lexer;
 use token::Token;
 
+#[derive(Debug)]
 pub struct TokenBuffer {
     lexer: Lexer,
     token: RefCell<Token>,

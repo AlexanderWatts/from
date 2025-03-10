@@ -1,7 +1,8 @@
 use ast::{Block, Element};
-use lexer::Lexer;
 use token::{Token, TokenType};
+use token_buffer::TokenBuffer;
 mod ast;
+mod token_buffer;
 
 ///
 /// Grammar
@@ -12,13 +13,13 @@ mod ast;
 ///
 #[derive(Debug)]
 pub struct Parser {
-    lexer: Lexer,
+    token_buffer: TokenBuffer,
 }
 
 impl Parser {
     pub fn new(input: &str) -> Self {
         Self {
-            lexer: Lexer::new(input),
+            token_buffer: TokenBuffer::new(input),
         }
     }
 
@@ -46,7 +47,7 @@ impl Parser {
     where
         T: IntoIterator<Item = TokenType>,
     {
-        match self.lexer.token() {
+        match self.token_buffer.next() {
             token
                 if expected_token_types
                     .into_iter()
