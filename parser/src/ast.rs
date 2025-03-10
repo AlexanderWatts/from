@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub struct Element {
-    block: Block,
+    pub block: Block,
 }
 
 impl Default for Element {
@@ -13,7 +13,7 @@ impl Default for Element {
 
 #[derive(Debug, PartialEq)]
 pub struct Block {
-    elements: Vec<Element>,
+    pub elements: Vec<Element>,
 }
 
 impl Default for Block {

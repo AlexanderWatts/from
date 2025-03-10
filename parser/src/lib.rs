@@ -1,3 +1,4 @@
+use ast::{Block, Element};
 use lexer::Lexer;
 mod ast;
 
@@ -18,5 +19,32 @@ impl Parser {
         Self {
             lexer: Lexer::new(input),
         }
+    }
+
+    pub fn parse(&self) -> Result<Element, ()> {
+        self.element()
+    }
+
+    fn element(&self) -> Result<Element, ()> {
+        Ok(Element::default())
+    }
+
+    fn element_block(&self) -> Result<Block, ()> {
+        Ok(Block::default())
+    }
+}
+
+#[cfg(test)]
+mod parser {
+    use super::*;
+
+    #[test]
+    fn parse() {
+        assert_eq!(
+            Ok(Element {
+                block: Block { elements: vec![] },
+            }),
+            Parser::new("div {}").parse()
+        );
     }
 }
