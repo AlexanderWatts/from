@@ -29,10 +29,16 @@ impl Parser {
     fn element(&self) -> Result<Element, ()> {
         self.next_or_err([TokenType::Div, TokenType::Span])?;
 
-        Ok(Element::default())
+        let block = self.element_block()?;
+
+        Ok(Element::new(block))
     }
 
     fn element_block(&self) -> Result<Block, ()> {
+        self.next_or_err([TokenType::LeftBrace])?;
+
+        self.next_or_err([TokenType::RightBrace])?;
+
         Ok(Block::default())
     }
 

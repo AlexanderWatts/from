@@ -3,6 +3,12 @@ pub struct Element {
     pub block: Block,
 }
 
+impl Element {
+    pub fn new(block: Block) -> Self {
+        Self { block }
+    }
+}
+
 impl Default for Element {
     fn default() -> Self {
         Self {
