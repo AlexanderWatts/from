@@ -16,6 +16,10 @@ impl TokenBuffer {
         Self { lexer, token }
     }
 
+    pub fn next(&self) -> Token {
+        self.token.replace(self.lexer.token())
+    }
+
     pub fn peek(&self) -> Ref<'_, Token> {
         self.token.borrow()
     }
@@ -26,6 +30,16 @@ mod token_buffer {
     use token::TokenType;
 
     use super::*;
+
+    #[test]
+    fn consume_input() {
+        let token_buffer = TokenBuffer::new("div {}");
+
+        assert_eq!(Token::new(TokenType::Div), token_buffer.next());
+        assert_eq!(Token::new(TokenType::LeftBrace), token_buffer.next());
+        assert_eq!(Token::new(TokenType::RightBrace), token_buffer.next());
+        assert_eq!(Token::new(TokenType::End), token_buffer.next());
+    }
 
     #[test]
     fn peek_current_token() {
