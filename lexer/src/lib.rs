@@ -48,7 +48,8 @@ impl Lexer {
                     _ => return TokenType::Error,
                 }
             }
-            _ => TokenType::Error,
+            Some(_) => TokenType::Error,
+            None => TokenType::End,
         }
     }
 
@@ -76,6 +77,7 @@ mod lexer {
         assert_eq!(Token::new(TokenType::Div), lexer.token());
         assert_eq!(Token::new(TokenType::LeftBrace), lexer.token());
         assert_eq!(Token::new(TokenType::RightBrace), lexer.token());
+        assert_eq!(Token::new(TokenType::End), lexer.token());
     }
 
     #[test]
