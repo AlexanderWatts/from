@@ -24,13 +24,13 @@ impl NodeVisitor<JsNode> for Transpiler {
             elements.push(element.accept(self));
         }
 
-        JsNode::BlockStatement(BlockStatement::new(vec![]))
+        JsNode::BlockStatement(BlockStatement::new(elements))
     }
 }
 
 #[cfg(test)]
 mod transpiler {
-    use node::Element;
+    use node::{Block, Element};
 
     use super::*;
 
@@ -40,7 +40,7 @@ mod transpiler {
             JsNode::FunctionExpression(FunctionExpression::new(JsNode::BlockStatement(
                 BlockStatement::new(vec![])
             ))),
-            Transpiler.transpile(&Element::default())
+            Transpiler.transpile(&Element::new(Block::new(vec![])))
         );
     }
 }
