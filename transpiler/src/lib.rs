@@ -6,7 +6,9 @@ pub struct Transpiler;
 
 impl Transpiler {
     pub fn transpile(&self, root: &impl Node) -> JsNode {
-        root.accept(self)
+        let tree = root.accept(self);
+
+        tree
     }
 }
 
