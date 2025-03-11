@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["from", "lexer", "node", "parser", "token"]
+members = ["from", "lexer", "node", "parser", "token", "transpiler"]
 
 [workspace.package]
 version = "0.1.0"
