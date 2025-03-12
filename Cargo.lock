@@ -3,6 +3,13 @@
 version = 4
 
 [[package]]
+name = "code_generation"
+version = "0.1.0"
+dependencies = [
+ "transpiler",
+]
+
+[[package]]
 name = "from"
 version = "0.1.0"
 

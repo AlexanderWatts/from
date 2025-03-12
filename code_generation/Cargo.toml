@@ -1,0 +1,7 @@
+[package]
+name = "code_generation"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+transpiler = { path = "../transpiler" }
