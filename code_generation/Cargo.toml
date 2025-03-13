@@ -4,4 +4,4 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-transpiler = { path = "../transpiler" }
+estree = { path = "../estree" }
