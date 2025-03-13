@@ -1,4 +1,4 @@
-use node::{Block, Element};
+use proto::{Element, Proto};
 use token::{Token, TokenType};
 use token_buffer::TokenBuffer;
 mod token_buffer;
@@ -22,22 +22,22 @@ impl Parser {
         }
     }
 
-    pub fn parse(&self) -> Result<Element, ()> {
+    pub fn parse(&self) -> Result<Proto, ()> {
         self.element()
     }
 
-    fn element(&self) -> Result<Element, ()> {
+    fn element(&self) -> Result<Proto, ()> {
         self.next_or_err([TokenType::Div, TokenType::Span])?;
 
         let block = self.element_block()?;
 
-        Ok(Element::new(block))
+        Ok(Proto::Element(Element { block }))
     }
 
-    fn element_block(&self) -> Result<Block, ()> {
+    fn element_block(&self) -> Result<Vec<Proto>, ()> {
         self.next_or_err([TokenType::LeftBrace])?;
 
-        let mut elements: Vec<Element> = vec![];
+        let mut elements: Vec<Proto> = vec![];
 
         while !matches!(
             &*self.token_buffer.peek(),
@@ -51,7 +51,7 @@ impl Parser {
 
         self.next_or_err([TokenType::RightBrace])?;
 
-        Ok(Block::new(elements))
+        Ok(elements)
     }
 
     fn next_or_err<T>(&self, expected_token_types: T) -> Result<Token, ()>
@@ -86,20 +86,14 @@ mod parser {
     #[test]
     fn parse() {
         assert_eq!(
-            Ok(Element {
-                block: Block {
-                    elements: vec![Element {
-                        block: Block { elements: vec![] }
-                    }]
-                }
-            }),
+            Ok(Proto::Element(Element {
+                block: vec![Proto::Element(Element { block: vec![] })]
+            })),
             Parser::new("span{div{}}").parse(),
         );
 
         assert_eq!(
-            Ok(Element {
-                block: Block { elements: vec![] },
-            }),
+            Ok(Proto::Element(Element { block: vec![] })),
             Parser::new("div {}").parse()
         );
     }

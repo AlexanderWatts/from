@@ -29,9 +29,13 @@ name = "parser"
 version = "0.1.0"
 dependencies = [
  "lexer",
- "node",
+ "proto",
  "token",
 ]
+
+[[package]]
+name = "proto"
+version = "0.1.0"
 
 [[package]]
 name = "token"
