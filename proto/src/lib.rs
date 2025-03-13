@@ -24,7 +24,13 @@ impl Element {
     }
 }
 
-impl Proto {}
+impl Proto {
+    pub fn accept<T>(&self, visitor: &impl ProtoVisitor<T>) -> T {
+        match self {
+            Self::Element(element) => visitor.visit_element(element),
+        }
+    }
+}
 
 #[cfg(test)]
 mod proto {
