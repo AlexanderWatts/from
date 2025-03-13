@@ -3,6 +3,10 @@ pub enum Proto {
     Element(Element),
 }
 
+pub trait ProtoVisitor<T> {
+    fn visit_element(&self, element: &Element) -> T;
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Element {
     pub block: Vec<Proto>,
