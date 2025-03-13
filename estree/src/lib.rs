@@ -34,8 +34,24 @@ impl FunctionExpression {
     }
 }
 
+pub trait JsVisitor {
+    fn visit_block_statement(&self, block_statement: &BlockStatement);
+    fn visit_function_expression(&self, function_expression: &FunctionExpression);
+}
+
 #[derive(Debug, PartialEq)]
 pub enum JsNode {
     BlockStatement(BlockStatement),
     FunctionExpression(FunctionExpression),
+}
+
+impl JsNode {
+    pub fn accept(&self, visitor: &impl JsVisitor) {
+        match self {
+            Self::BlockStatement(block_statement) => visitor.visit_block_statement(block_statement),
+            Self::FunctionExpression(function_expression) => {
+                visitor.visit_function_expression(function_expression)
+            }
+        }
+    }
 }
