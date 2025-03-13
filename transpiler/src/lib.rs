@@ -1,38 +1,36 @@
 mod js_node;
 use js_node::{BlockStatement, FunctionExpression, JsNode};
-use node::{Node, NodeVisitor};
+use proto::{Element, Proto, ProtoVisitor};
 
 pub struct Transpiler;
 
 impl Transpiler {
-    pub fn transpile(&self, root: &impl Node) -> JsNode {
+    pub fn transpile(&self, root: &Proto) -> JsNode {
         let tree = root.accept(self);
 
         tree
     }
 }
 
-impl NodeVisitor<JsNode> for Transpiler {
-    fn visit_element(&self, element: &node::Element) -> JsNode {
-        let body = element.block.accept(self);
+impl ProtoVisitor<JsNode> for Transpiler {
+    fn visit_element(&self, element: &Element) -> JsNode {
+        println!("ele {:#?}", element);
 
-        JsNode::FunctionExpression(FunctionExpression::new(body))
-    }
+        let mut block_statements = vec![];
 
-    fn visit_block(&self, block: &node::Block) -> JsNode {
-        let mut elements = vec![];
-
-        for element in block.elements.iter() {
-            elements.push(element.accept(self));
+        for element in element.block.iter() {
+            block_statements.push(element.accept(self));
         }
 
-        JsNode::BlockStatement(BlockStatement::new(elements))
+        JsNode::FunctionExpression(FunctionExpression::new(JsNode::BlockStatement(
+            BlockStatement::new(block_statements),
+        )))
     }
 }
 
 #[cfg(test)]
 mod transpiler {
-    use node::{Block, Element};
+    use js_node::{BlockStatement, FunctionExpression, JsNode};
 
     use super::*;
 
@@ -40,9 +38,11 @@ mod transpiler {
     fn transpile() {
         assert_eq!(
             JsNode::FunctionExpression(FunctionExpression::new(JsNode::BlockStatement(
-                BlockStatement::new(vec![])
+                BlockStatement::new(vec![]),
             ))),
-            Transpiler.transpile(&Element::new(Block::new(vec![])))
+            Transpiler.transpile(&Proto::Element(Element {
+                block: vec![Proto::Element(Element { block: vec![] })]
+            }))
         );
     }
 }
