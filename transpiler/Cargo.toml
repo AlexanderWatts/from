@@ -4,4 +4,4 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-node = { path = "../node" }
+proto = { path = "../proto" }

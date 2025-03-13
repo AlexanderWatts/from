@@ -14,8 +14,6 @@ impl Transpiler {
 
 impl ProtoVisitor<JsNode> for Transpiler {
     fn visit_element(&self, element: &Element) -> JsNode {
-        println!("ele {:#?}", element);
-
         let mut block_statements = vec![];
 
         for element in element.block.iter() {
@@ -38,7 +36,11 @@ mod transpiler {
     fn transpile() {
         assert_eq!(
             JsNode::FunctionExpression(FunctionExpression::new(JsNode::BlockStatement(
-                BlockStatement::new(vec![]),
+                BlockStatement::new(vec![
+                    JsNode::FunctionExpression(FunctionExpression::new(JsNode::BlockStatement(
+                        BlockStatement::new(vec![]),
+                    ))),
+                ]),
             ))),
             Transpiler.transpile(&Proto::Element(Element {
                 block: vec![Proto::Element(Element { block: vec![] })]
