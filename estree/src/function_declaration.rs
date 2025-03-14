@@ -1,16 +1,20 @@
-use crate::{JsNode, js_node_type::JsNodeType};
+use crate::{
+    JsNode, block_statement::BlockStatement, identifier::Identifier, js_node_type::JsNodeType,
+};
 
 #[derive(Debug, PartialEq)]
 pub struct FunctionDeclaration {
     js_node_type: JsNodeType,
+    identifier: Box<JsNode>,
     body: Box<JsNode>,
 }
 
 impl FunctionDeclaration {
-    pub fn new(body: JsNode) -> Self {
+    pub fn new(identifier: Identifier, body: BlockStatement) -> Self {
         Self {
             js_node_type: JsNodeType::FunctionDeclaration,
-            body: Box::new(body),
+            identifier: Box::new(JsNode::Identifier(identifier)),
+            body: Box::new(JsNode::BlockStatement(body)),
         }
     }
 }
