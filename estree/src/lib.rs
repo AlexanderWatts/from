@@ -1,3 +1,5 @@
+mod js_node_type;
+
 #[derive(Debug, PartialEq)]
 pub enum NodeType {
     BlockStatement,
