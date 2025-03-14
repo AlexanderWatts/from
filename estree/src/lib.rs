@@ -1,4 +1,5 @@
 mod block_statement;
+mod function_declaration;
 mod js_node_type;
 
 #[derive(Debug, PartialEq)]
