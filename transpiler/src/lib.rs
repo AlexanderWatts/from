@@ -1,4 +1,7 @@
-use estree::{JsNode, block_statement::BlockStatement, function_declaration::FunctionDeclaration};
+use estree::{
+    JsNode, block_statement::BlockStatement, function_declaration::FunctionDeclaration,
+    identifier::Identifier,
+};
 use proto::{Element, Proto, ProtoVisitor};
 
 pub struct Transpiler;
@@ -19,9 +22,10 @@ impl ProtoVisitor<JsNode> for Transpiler {
             block_statements.push(element.accept(self));
         }
 
-        JsNode::FunctionDeclaration(FunctionDeclaration::new(JsNode::BlockStatement(
+        JsNode::FunctionDeclaration(FunctionDeclaration::new(
+            Identifier::new("createElement"),
             BlockStatement::new(block_statements),
-        )))
+        ))
     }
 }
 
@@ -32,11 +36,13 @@ mod transpiler {
     #[test]
     fn transpile() {
         assert_eq!(
-            JsNode::FunctionDeclaration(FunctionDeclaration::new(JsNode::BlockStatement(
+            JsNode::FunctionDeclaration(FunctionDeclaration::new(
+                Identifier::new("createElement"),
                 BlockStatement::new(vec![JsNode::FunctionDeclaration(FunctionDeclaration::new(
-                    JsNode::BlockStatement(BlockStatement::new(vec![]),)
-                )),]),
-            ))),
+                    Identifier::new("createElement"),
+                    BlockStatement::new(vec![])
+                )),])
+            )),
             Transpiler.transpile(&Proto::Element(Element {
                 block: vec![Proto::Element(Element { block: vec![] })]
             }))
