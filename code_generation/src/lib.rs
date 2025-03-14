@@ -26,6 +26,10 @@ impl JsVisitor<String> for CodeGenerator {
     ) -> String {
         format!("")
     }
+
+    fn visit_identifier(&self, identifier: &estree::identifier::Identifier) -> String {
+        format!("")
+    }
 }
 
 #[cfg(test)]
