@@ -13,13 +13,16 @@ impl CodeGenerator {
 }
 
 impl JsVisitor<String> for CodeGenerator {
-    fn visit_block_statement(&self, block_statement: &estree::BlockStatement) -> String {
+    fn visit_block_statement(
+        &self,
+        block_statement: &estree::block_statement::BlockStatement,
+    ) -> String {
         format!("")
     }
 
-    fn visit_function_expression(
+    fn visit_function_declaration(
         &self,
-        function_expression: &estree::FunctionExpression,
+        function_declaration: &estree::function_declaration::FunctionDeclaration,
     ) -> String {
         format!("")
     }
