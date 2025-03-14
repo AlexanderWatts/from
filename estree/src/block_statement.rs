@@ -2,8 +2,8 @@ use crate::{JsNode, js_node_type::JsNodeType};
 
 #[derive(Debug, PartialEq)]
 pub struct BlockStatement {
-    js_node_type: JsNodeType,
-    body: Vec<JsNode>,
+    pub js_node_type: JsNodeType,
+    pub body: Vec<JsNode>,
 }
 
 impl BlockStatement {

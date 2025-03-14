@@ -4,9 +4,9 @@ use crate::{
 
 #[derive(Debug, PartialEq)]
 pub struct FunctionDeclaration {
-    js_node_type: JsNodeType,
-    identifier: Box<JsNode>,
-    body: Box<JsNode>,
+    pub js_node_type: JsNodeType,
+    pub identifier: Box<JsNode>,
+    pub body: Box<JsNode>,
 }
 
 impl FunctionDeclaration {

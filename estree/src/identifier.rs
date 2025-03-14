@@ -2,8 +2,8 @@ use crate::js_node_type::JsNodeType;
 
 #[derive(Debug, PartialEq)]
 pub struct Identifier {
-    js_node_type: JsNodeType,
-    name: String,
+    pub js_node_type: JsNodeType,
+    pub name: String,
 }
 
 impl Identifier {
