@@ -1,2 +1,4 @@
 #[derive(Debug, PartialEq)]
-pub enum JsNodeType {}
+pub enum JsNodeType {
+    BlockStatement,
+}
