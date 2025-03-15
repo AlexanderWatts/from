@@ -3,4 +3,5 @@ pub enum JsNodeType {
     Identifier,
     BlockStatement,
     FunctionDeclaration,
+    ReturnStatement,
 }
