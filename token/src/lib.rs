@@ -5,6 +5,7 @@ pub enum TokenType {
     LeftBrace,
     RightBrace,
     Error,
+    Return,
     End,
 }
 
