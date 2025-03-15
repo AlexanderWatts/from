@@ -1,6 +1,8 @@
 use estree::{
-    JsNode, JsVisitor, block_statement::BlockStatement, function_declaration::FunctionDeclaration,
-    identifier::Identifier, return_statement::ReturnStatement,
+    JsNode, JsVisitor, block_statement::BlockStatement, call_expression::CallExpression,
+    function_declaration::FunctionDeclaration, identifier::Identifier,
+    member_expression::MemberExpression, return_statement::ReturnStatement,
+    string_literal::StringLiteral,
 };
 
 pub struct CodeGenerator;
@@ -47,11 +49,79 @@ impl JsVisitor<String> for CodeGenerator {
 
         format!("return {};", argument)
     }
+
+    fn visit_call_expression(&self, call_expression: &CallExpression) -> String {
+        let CallExpression {
+            callee, arguments, ..
+        } = call_expression;
+
+        let callee = callee.accept(self);
+
+        let arguments = arguments
+            .into_iter()
+            .map(|argument| argument.accept(self))
+            .collect::<String>();
+
+        format!("{callee}({arguments});")
+    }
+
+    fn visit_member_expression(&self, member_expression: &MemberExpression) -> String {
+        let MemberExpression {
+            object, property, ..
+        } = member_expression;
+
+        let object = object.accept(self);
+
+        let property = match property {
+            Some(p) => format!(".{}", p.accept(self)),
+            None => "".to_string(),
+        };
+
+        format!("{object}{property}")
+    }
+
+    fn visit_string_literal(&self, string_literal: &StringLiteral) -> String {
+        format!(r#""{}""#, string_literal.value)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn generate_call_expression_with_members() {
+        assert_eq!(
+            r#"document.main.createElement("div");"#,
+            CodeGenerator.generate(&JsNode::CallExpression(CallExpression::new(
+                JsNode::MemberExpression(MemberExpression::new(
+                    JsNode::Identifier(Identifier::new("document")),
+                    Some(JsNode::MemberExpression(MemberExpression::new(
+                        JsNode::Identifier(Identifier::new("main")),
+                        Some(JsNode::MemberExpression(MemberExpression::new(
+                            JsNode::Identifier(Identifier::new("createElement")),
+                            None
+                        ))),
+                    ))),
+                )),
+                vec![JsNode::StringLiteral(StringLiteral::new("div"))],
+            )))
+        );
+    }
+
+    #[test]
+    fn generate_call_expression() {
+        assert_eq!(
+            r#"document.createElement("div");"#,
+            CodeGenerator.generate(&JsNode::CallExpression(CallExpression::new(
+                JsNode::MemberExpression(MemberExpression::new(
+                    JsNode::Identifier(Identifier::new("document")),
+                    Some(JsNode::Identifier(Identifier::new("createElement"))),
+                )),
+                vec![JsNode::StringLiteral(StringLiteral::new("div"))],
+            )))
+        );
+    }
 
     #[test]
     fn generate_return_statement() {
