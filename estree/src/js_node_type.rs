@@ -2,6 +2,7 @@
 pub enum JsNodeType {
     Identifier,
     BlockStatement,
+    CallExpression,
     FunctionDeclaration,
     ReturnStatement,
 }
