@@ -3,12 +3,14 @@ pub mod call_expression;
 pub mod function_declaration;
 pub mod identifier;
 pub mod js_node_type;
+pub mod member_expression;
 pub mod return_statement;
 
 use block_statement::BlockStatement;
 use call_expression::CallExpression;
 use function_declaration::FunctionDeclaration;
 use identifier::Identifier;
+use member_expression::MemberExpression;
 use return_statement::ReturnStatement;
 
 pub trait JsVisitor<T> {
@@ -17,6 +19,7 @@ pub trait JsVisitor<T> {
     fn visit_identifier(&self, identifier: &Identifier) -> T;
     fn visit_return_statement(&self, return_statement: &ReturnStatement) -> T;
     fn visit_call_expression(&self, call_expression: &CallExpression) -> T;
+    fn visit_member_expression(&self, member_expression: &MemberExpression) -> T;
 }
 
 #[derive(Debug, PartialEq)]
@@ -26,6 +29,7 @@ pub enum JsNode {
     Identifier(Identifier),
     ReturnStatement(ReturnStatement),
     CallExpression(CallExpression),
+    MemberExpression(MemberExpression),
 }
 
 impl JsNode {
@@ -40,6 +44,9 @@ impl JsNode {
                 visitor.visit_return_statement(return_statement)
             }
             Self::CallExpression(call_expression) => visitor.visit_call_expression(call_expression),
+            Self::MemberExpression(member_expression) => {
+                visitor.visit_member_expression(member_expression)
+            }
         }
     }
 }
