@@ -1,4 +1,9 @@
-use estree::{JsNode, JsVisitor};
+use estree::{
+    JsNode, JsVisitor,
+    block_statement::BlockStatement,
+    function_declaration::FunctionDeclaration,
+    identifier::Identifier,
+};
 
 pub struct CodeGenerator;
 
@@ -13,22 +18,28 @@ impl CodeGenerator {
 }
 
 impl JsVisitor<String> for CodeGenerator {
-    fn visit_block_statement(
-        &self,
-        block_statement: &estree::block_statement::BlockStatement,
-    ) -> String {
-        format!("")
+    fn visit_block_statement(&self, block_statement: &BlockStatement) -> String {
+        let BlockStatement { body, .. } = block_statement;
+
+        body.into_iter()
+            .map(|item| item.accept(self))
+            .collect::<String>()
     }
 
-    fn visit_function_declaration(
-        &self,
-        function_declaration: &estree::function_declaration::FunctionDeclaration,
-    ) -> String {
-        format!("")
+    fn visit_function_declaration(&self, function_declaration: &FunctionDeclaration) -> String {
+        let FunctionDeclaration {
+            identifier, body, ..
+        } = function_declaration;
+
+        let identifier = identifier.accept(self);
+
+        let body = body.accept(self);
+
+        format!("function {identifier}() {{{body}}}")
     }
 
-    fn visit_identifier(&self, identifier: &estree::identifier::Identifier) -> String {
-        format!("")
+    fn visit_identifier(&self, identifier: &Identifier) -> String {
+        format!("{}", identifier.name)
     }
 }
 
@@ -37,7 +48,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn new() {
-        let _code_generator = CodeGenerator;
+    fn generate_function_declaration() {
+        assert_eq!(
+            "function xyz() {}",
+            CodeGenerator.generate(&JsNode::FunctionDeclaration(FunctionDeclaration::new(
+                Identifier::new("xyz"),
+                BlockStatement::new(vec![]),
+            )))
+        );
     }
 }
