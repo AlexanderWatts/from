@@ -1,8 +1,6 @@
 use estree::{
-    JsNode, JsVisitor,
-    block_statement::BlockStatement,
-    function_declaration::FunctionDeclaration,
-    identifier::Identifier,
+    JsNode, JsVisitor, block_statement::BlockStatement, function_declaration::FunctionDeclaration,
+    identifier::Identifier, return_statement::ReturnStatement,
 };
 
 pub struct CodeGenerator;
@@ -41,11 +39,29 @@ impl JsVisitor<String> for CodeGenerator {
     fn visit_identifier(&self, identifier: &Identifier) -> String {
         format!("{}", identifier.name)
     }
+
+    fn visit_return_statement(&self, return_statement: &ReturnStatement) -> String {
+        let ReturnStatement { argument, .. } = return_statement;
+
+        let argument = argument.accept(self);
+
+        format!("return {}", argument)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn generate_return_statement() {
+        assert_eq!(
+            "return x",
+            CodeGenerator.generate(&JsNode::ReturnStatement(ReturnStatement::new(
+                JsNode::Identifier(Identifier::new("x"))
+            )))
+        );
+    }
 
     #[test]
     fn generate_function_declaration() {
