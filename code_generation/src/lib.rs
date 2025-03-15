@@ -45,7 +45,7 @@ impl JsVisitor<String> for CodeGenerator {
 
         let argument = argument.accept(self);
 
-        format!("return {}", argument)
+        format!("return {};", argument)
     }
 }
 
@@ -56,7 +56,7 @@ mod tests {
     #[test]
     fn generate_return_statement() {
         assert_eq!(
-            "return x",
+            "return x;",
             CodeGenerator.generate(&JsNode::ReturnStatement(ReturnStatement::new(
                 JsNode::Identifier(Identifier::new("x"))
             )))
