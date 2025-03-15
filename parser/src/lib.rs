@@ -27,11 +27,11 @@ impl Parser {
     }
 
     fn element(&self) -> Result<Proto, ()> {
-        self.next_or_err([TokenType::Div, TokenType::Span])?;
+        let Token { token_type, .. } = self.next_or_err([TokenType::Div, TokenType::Span])?;
 
         let block = self.element_block()?;
 
-        Ok(Proto::Element(Element { block }))
+        Ok(Proto::Element(Element::new(&token_type.to_string(), block)))
     }
 
     fn element_block(&self) -> Result<Vec<Proto>, ()> {
@@ -86,14 +86,15 @@ mod parser {
     #[test]
     fn parse() {
         assert_eq!(
-            Ok(Proto::Element(Element {
-                block: vec![Proto::Element(Element { block: vec![] })]
-            })),
+            Ok(Proto::Element(Element::new(
+                "span",
+                vec![Proto::Element(Element::new("div", vec![]))]
+            ))),
             Parser::new("span{div{}}").parse(),
         );
 
         assert_eq!(
-            Ok(Proto::Element(Element { block: vec![] })),
+            Ok(Proto::Element(Element::new("div", vec![]))),
             Parser::new("div {}").parse()
         );
     }
