@@ -47,7 +47,7 @@ impl JsVisitor<String> for CodeGenerator {
 
         let argument = argument.accept(self);
 
-        format!("return {};", argument)
+        format!("return {}", argument)
     }
 
     fn visit_call_expression(&self, call_expression: &CallExpression) -> String {
@@ -62,7 +62,7 @@ impl JsVisitor<String> for CodeGenerator {
             .map(|argument| argument.accept(self))
             .collect::<String>();
 
-        format!("{callee}({arguments});")
+        format!("{callee}({arguments})")
     }
 
     fn visit_member_expression(&self, member_expression: &MemberExpression) -> String {
@@ -92,7 +92,7 @@ mod tests {
     #[test]
     fn generate_call_expression_with_members() {
         assert_eq!(
-            r#"document.main.createElement("div");"#,
+            r#"document.main.createElement("div")"#,
             CodeGenerator.generate(&JsNode::CallExpression(CallExpression::new(
                 JsNode::MemberExpression(MemberExpression::new(
                     JsNode::Identifier(Identifier::new("document")),
@@ -112,7 +112,7 @@ mod tests {
     #[test]
     fn generate_call_expression() {
         assert_eq!(
-            r#"document.createElement("div");"#,
+            r#"document.createElement("div")"#,
             CodeGenerator.generate(&JsNode::CallExpression(CallExpression::new(
                 JsNode::MemberExpression(MemberExpression::new(
                     JsNode::Identifier(Identifier::new("document")),
@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn generate_return_statement() {
         assert_eq!(
-            "return x;",
+            "return x",
             CodeGenerator.generate(&JsNode::ReturnStatement(ReturnStatement::new(
                 JsNode::Identifier(Identifier::new("x"))
             )))
