@@ -7,7 +7,6 @@ pub enum TokenType {
     LeftBrace,
     RightBrace,
     Error,
-    Return,
     End,
 }
 
@@ -19,7 +18,6 @@ impl Display for TokenType {
             Self::LeftBrace => write!(f, "{{"),
             Self::RightBrace => write!(f, "}}"),
             Self::Error => write!(f, "error"),
-            Self::Return => write!(f, "return"),
             Self::End => write!(f, "end"),
         }
     }

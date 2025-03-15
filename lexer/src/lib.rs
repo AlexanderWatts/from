@@ -43,7 +43,6 @@ impl Lexer {
                     Some(word) => match word.into_iter().collect::<String>().as_str() {
                         "div" => TokenType::Div,
                         "span" => TokenType::Span,
-                        "return" => TokenType::Return,
                         _ => return TokenType::Error,
                     },
                     _ => return TokenType::Error,
