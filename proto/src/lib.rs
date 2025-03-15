@@ -9,18 +9,16 @@ pub trait ProtoVisitor<T> {
 
 #[derive(Debug, PartialEq)]
 pub struct Element {
+    pub element_type: String,
     pub block: Vec<Proto>,
 }
 
-impl Default for Element {
-    fn default() -> Self {
-        Self { block: vec![] }
-    }
-}
-
 impl Element {
-    pub fn new(block: Vec<Proto>) -> Self {
-        Self { block }
+    pub fn new(element_type: &str, block: Vec<Proto>) -> Self {
+        Self {
+            element_type: String::from(element_type),
+            block,
+        }
     }
 }
 
@@ -40,9 +38,16 @@ mod proto {
     fn setup() {
         assert_eq!(
             Proto::Element(Element {
-                block: vec![Proto::Element(Element { block: vec![] })]
+                element_type: "div".to_string(),
+                block: vec![Proto::Element(Element {
+                    element_type: "span".to_string(),
+                    block: vec![]
+                })]
             }),
-            Proto::Element(Element::new(vec![Proto::Element(Element::default())]))
+            Proto::Element(Element::new(
+                "div",
+                vec![Proto::Element(Element::new("span", vec![]))]
+            ))
         );
     }
 }
