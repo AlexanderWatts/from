@@ -1,6 +1,7 @@
 use estree::{
-    JsNode, block_statement::BlockStatement, function_declaration::FunctionDeclaration,
-    identifier::Identifier, return_statement::ReturnStatement,
+    JsNode, block_statement::BlockStatement, call_expression::CallExpression,
+    function_declaration::FunctionDeclaration, identifier::Identifier,
+    member_expression::MemberExpression, return_statement::ReturnStatement,
 };
 use proto::{Element, Proto, ProtoVisitor};
 
@@ -18,8 +19,7 @@ impl ProtoVisitor<JsNode> for Transpiler {
     ///
     /// ```js
     /// function createElement(element_type) {
-    ///     let element = document.createElement(element_type);
-    ///     return element;
+    ///     return document.createElement(element_type);
     /// }
     /// ```
     ///
@@ -33,7 +33,13 @@ impl ProtoVisitor<JsNode> for Transpiler {
         JsNode::FunctionDeclaration(FunctionDeclaration::new(
             Identifier::new("createElement"),
             BlockStatement::new(vec![JsNode::ReturnStatement(ReturnStatement::new(
-                JsNode::Identifier(Identifier::new("element")),
+                JsNode::CallExpression(CallExpression::new(
+                    JsNode::MemberExpression(MemberExpression::new(
+                        JsNode::Identifier(Identifier::new("document")),
+                        Some(JsNode::Identifier(Identifier::new("createElement"))),
+                    )),
+                    vec![],
+                )),
             ))]),
         ))
     }
@@ -44,17 +50,21 @@ mod transpiler {
     use super::*;
 
     #[test]
-    fn transpile() {
+    fn transpile_element() {
         assert_eq!(
             JsNode::FunctionDeclaration(FunctionDeclaration::new(
                 Identifier::new("createElement"),
                 BlockStatement::new(vec![JsNode::ReturnStatement(ReturnStatement::new(
-                    JsNode::Identifier(Identifier::new("element")),
-                ))])
+                    JsNode::CallExpression(CallExpression::new(
+                        JsNode::MemberExpression(MemberExpression::new(
+                            JsNode::Identifier(Identifier::new("document")),
+                            Some(JsNode::Identifier(Identifier::new("createElement"))),
+                        )),
+                        vec![],
+                    )),
+                ))]),
             )),
-            Transpiler.transpile(&Proto::Element(Element {
-                block: vec![Proto::Element(Element { block: vec![] })]
-            }))
+            Transpiler.transpile(&Proto::Element(Element::new("div", vec![])))
         );
     }
 }
