@@ -4,6 +4,7 @@ pub enum JsNodeType {
     BlockStatement,
     CallExpression,
     MemberExpression,
+    StringLiteral,
     FunctionDeclaration,
     ReturnStatement,
 }
