@@ -10,6 +10,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "end_to_end"
+version = "0.1.0"
+dependencies = [
+ "code_generation",
+ "estree",
+ "parser",
+ "proto",
+ "transpiler",
+]
+
+[[package]]
 name = "estree"
 version = "0.1.0"
 
