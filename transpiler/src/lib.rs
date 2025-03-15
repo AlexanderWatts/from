@@ -2,6 +2,7 @@ use estree::{
     JsNode, block_statement::BlockStatement, call_expression::CallExpression,
     function_declaration::FunctionDeclaration, identifier::Identifier,
     member_expression::MemberExpression, return_statement::ReturnStatement,
+    string_literal::StringLiteral,
 };
 use proto::{Element, Proto, ProtoVisitor};
 
@@ -38,7 +39,9 @@ impl ProtoVisitor<JsNode> for Transpiler {
                         JsNode::Identifier(Identifier::new("document")),
                         Some(JsNode::Identifier(Identifier::new("createElement"))),
                     )),
-                    vec![],
+                    vec![JsNode::StringLiteral(StringLiteral::new(
+                        &element.element_type,
+                    ))],
                 )),
             ))]),
         ))
@@ -60,7 +63,7 @@ mod transpiler {
                             JsNode::Identifier(Identifier::new("document")),
                             Some(JsNode::Identifier(Identifier::new("createElement"))),
                         )),
-                        vec![],
+                        vec![JsNode::StringLiteral(StringLiteral::new("div"))],
                     )),
                 ))]),
             )),
