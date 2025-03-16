@@ -1,8 +1,14 @@
 use estree::{
-    JsNode, JsVisitor, block_statement::BlockStatement, call_expression::CallExpression,
-    function_declaration::FunctionDeclaration, identifier::Identifier,
-    member_expression::MemberExpression, return_statement::ReturnStatement,
+    JsNode, JsVisitor,
+    block_statement::BlockStatement,
+    call_expression::CallExpression,
+    function_declaration::FunctionDeclaration,
+    identifier::{self, Identifier},
+    member_expression::MemberExpression,
+    return_statement::ReturnStatement,
     string_literal::StringLiteral,
+    variable_declaration::VariableDeclaration,
+    variable_declarator::VariableDeclarator,
 };
 
 pub struct CodeGenerator;
@@ -83,11 +89,53 @@ impl JsVisitor<String> for CodeGenerator {
     fn visit_string_literal(&self, string_literal: &StringLiteral) -> String {
         format!(r#""{}""#, string_literal.value)
     }
+
+    fn visit_variable_declaration(&self, variable_declaration: &VariableDeclaration) -> String {
+        let VariableDeclaration {
+            kind, declarations, ..
+        } = variable_declaration;
+
+        let declarations = declarations
+            .into_iter()
+            .map(|declaration| declaration.accept(self))
+            .collect::<String>();
+
+        format!("{kind} {declarations}")
+    }
+
+    fn visit_variable_declarator(&self, variable_declarator: &VariableDeclarator) -> String {
+        let VariableDeclarator {
+            identifier,
+            initialiser,
+            ..
+        } = variable_declarator;
+
+        let identifier = identifier.accept(self);
+        let initialiser = initialiser.accept(self);
+
+        format!("{identifier} = {initialiser}")
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use estree::variable_declaration::VariableDeclarationKind;
+
     use super::*;
+
+    #[test]
+    fn generate_variable() {
+        assert_eq!(
+            r#"let x = "hello""#,
+            CodeGenerator.generate(&JsNode::VariableDeclaration(VariableDeclaration::new(
+                VariableDeclarationKind::Let,
+                vec![JsNode::VariableDeclarator(VariableDeclarator::new(
+                    Identifier::new("x"),
+                    JsNode::StringLiteral(StringLiteral::new("hello"))
+                ))]
+            )))
+        )
+    }
 
     #[test]
     fn generate_call_expression_with_members() {
