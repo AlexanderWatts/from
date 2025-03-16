@@ -5,6 +5,7 @@ pub enum JsNodeType {
     CallExpression,
     MemberExpression,
     StringLiteral,
+    VariableDeclaration,
     FunctionDeclaration,
     ReturnStatement,
 }
