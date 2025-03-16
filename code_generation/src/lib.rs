@@ -98,7 +98,8 @@ impl JsVisitor<String> for CodeGenerator {
         let declarations = declarations
             .into_iter()
             .map(|declaration| declaration.accept(self))
-            .collect::<String>();
+            .collect::<Vec<String>>()
+            .join(", ");
 
         format!("{kind} {declarations}")
     }
@@ -132,7 +133,7 @@ mod tests {
                 vec![JsNode::VariableDeclarator(VariableDeclarator::new(
                     Identifier::new("x"),
                     JsNode::StringLiteral(StringLiteral::new("hello"))
-                ))]
+                )),]
             )))
         )
     }
