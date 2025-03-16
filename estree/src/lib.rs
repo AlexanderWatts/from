@@ -7,6 +7,7 @@ pub mod member_expression;
 pub mod return_statement;
 pub mod string_literal;
 pub mod variable_declaration;
+pub mod variable_declarator;
 
 use block_statement::BlockStatement;
 use call_expression::CallExpression;
@@ -16,6 +17,7 @@ use member_expression::MemberExpression;
 use return_statement::ReturnStatement;
 use string_literal::StringLiteral;
 use variable_declaration::VariableDeclaration;
+use variable_declarator::VariableDeclarator;
 
 pub trait JsVisitor<T> {
     fn visit_block_statement(&self, block_statement: &BlockStatement) -> T;
@@ -26,6 +28,7 @@ pub trait JsVisitor<T> {
     fn visit_member_expression(&self, member_expression: &MemberExpression) -> T;
     fn visit_string_literal(&self, string_literal: &StringLiteral) -> T;
     fn visit_variable_declaration(&self, variable_declaration: &VariableDeclaration) -> T;
+    fn visit_variable_declarator(&self, variable_declarator: &VariableDeclarator) -> T;
 }
 
 #[derive(Debug, PartialEq)]
@@ -38,6 +41,7 @@ pub enum JsNode {
     MemberExpression(MemberExpression),
     StringLiteral(StringLiteral),
     VariableDeclaration(VariableDeclaration),
+    VariableDeclarator(VariableDeclarator),
 }
 
 impl JsNode {
@@ -58,6 +62,9 @@ impl JsNode {
             Self::StringLiteral(string_literal) => visitor.visit_string_literal(string_literal),
             Self::VariableDeclaration(variable_declaration) => {
                 visitor.visit_variable_declaration(variable_declaration)
+            }
+            Self::VariableDeclarator(variable_declarator) => {
+                visitor.visit_variable_declarator(variable_declarator)
             }
         }
     }
