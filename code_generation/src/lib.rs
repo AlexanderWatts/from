@@ -1,13 +1,8 @@
 use estree::{
-    JsNode, JsVisitor,
-    block_statement::BlockStatement,
-    call_expression::CallExpression,
-    function_declaration::FunctionDeclaration,
-    identifier::{self, Identifier},
-    member_expression::MemberExpression,
-    return_statement::ReturnStatement,
-    string_literal::StringLiteral,
-    variable_declaration::VariableDeclaration,
+    JsNode, JsVisitor, block_statement::BlockStatement, call_expression::CallExpression,
+    function_declaration::FunctionDeclaration, identifier::Identifier,
+    member_expression::MemberExpression, return_statement::ReturnStatement,
+    string_literal::StringLiteral, variable_declaration::VariableDeclaration,
     variable_declarator::VariableDeclarator,
 };
 
@@ -66,7 +61,8 @@ impl JsVisitor<String> for CodeGenerator {
         let arguments = arguments
             .into_iter()
             .map(|argument| argument.accept(self))
-            .collect::<String>();
+            .collect::<Vec<String>>()
+            .join(", ");
 
         format!("{callee}({arguments})")
     }
@@ -119,7 +115,7 @@ impl JsVisitor<String> for CodeGenerator {
 }
 
 #[cfg(test)]
-mod tests {
+mod code_generation {
     use estree::variable_declaration::VariableDeclarationKind;
 
     use super::*;
