@@ -6,8 +6,8 @@ From is the source-to-source compiler for the From DSL.
 
 ```
 div {
-	span {}
-	div {}
+    span {}
+    div {}
 }
 ```
 
