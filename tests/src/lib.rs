@@ -5,8 +5,8 @@ mod end_to_end {
     use transpiler::Transpiler;
 
     #[test]
-    fn create_div_element() {
-        let input = r#"div {}"#;
+    fn create_dom_tree() {
+        let input = r#"div {span {} div {}}"#;
 
         let parser = Parser::new(input);
 
@@ -19,7 +19,7 @@ mod end_to_end {
         let output = CodeGenerator::new().generate(&js_root);
 
         assert_eq!(
-            "function createElement() {return document.createElement(\"div\")}",
+            r#"function dom() {return element("div", element("span"), element("div"))}"#,
             output
         );
     }
