@@ -27,8 +27,8 @@ Take the following From code:
 
 ```
 div {
-	div {}
-	span {}
+    div {}
+    span {}
 }
 ```
 
@@ -36,9 +36,9 @@ This is transformed into:
 
 ```js
 function dom() {
-	return element("div",
-		element("span")
-	)
+    return element("div",
+        element("span")
+    )
 }
 ```
 The From runtime library provides the `element` function declaration responsible for rendering the elements.
