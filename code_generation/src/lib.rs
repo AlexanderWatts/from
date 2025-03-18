@@ -1,9 +1,9 @@
 use estree::{
     JsNode, JsVisitor, block_statement::BlockStatement, call_expression::CallExpression,
     function_declaration::FunctionDeclaration, identifier::Identifier,
-    member_expression::MemberExpression, return_statement::ReturnStatement,
-    string_literal::StringLiteral, variable_declaration::VariableDeclaration,
-    variable_declarator::VariableDeclarator,
+    member_expression::MemberExpression, null_literal::NullLiteral,
+    return_statement::ReturnStatement, string_literal::StringLiteral,
+    variable_declaration::VariableDeclaration, variable_declarator::VariableDeclarator,
 };
 
 pub struct CodeGenerator;
@@ -111,6 +111,10 @@ impl JsVisitor<String> for CodeGenerator {
         let initialiser = initialiser.accept(self);
 
         format!("{identifier} = {initialiser}")
+    }
+
+    fn visit_null_literal(&self, null_literal: &NullLiteral) -> String {
+        format!("{}", null_literal.value)
     }
 }
 
