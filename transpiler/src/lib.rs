@@ -1,6 +1,6 @@
 use estree::{
     JsNode, block_statement::BlockStatement, call_expression::CallExpression,
-    function_declaration::FunctionDeclaration, identifier::Identifier,
+    function_declaration::FunctionDeclaration, identifier::Identifier, null_literal::NullLiteral,
     return_statement::ReturnStatement, string_literal::StringLiteral,
 };
 use proto::{Element, Proto, ProtoVisitor};
@@ -39,9 +39,10 @@ impl ProtoVisitor<JsNode> for Transpiler {
     /// );
     /// ```
     fn visit_element(&self, element: &Element) -> JsNode {
-        let mut arguments = vec![JsNode::StringLiteral(StringLiteral::new(
-            &element.element_type,
-        ))];
+        let mut arguments = vec![
+            JsNode::StringLiteral(StringLiteral::new(&element.element_type)),
+            JsNode::NullLiteral(NullLiteral::new()),
+        ];
 
         arguments.extend(
             element
@@ -72,9 +73,13 @@ mod transpiler {
                         JsNode::Identifier(Identifier::new("element")),
                         vec![
                             JsNode::StringLiteral(StringLiteral::new("div")),
+                            JsNode::NullLiteral(NullLiteral::new()),
                             JsNode::CallExpression(CallExpression::new(
                                 JsNode::Identifier(Identifier::new("element")),
-                                vec![JsNode::StringLiteral(StringLiteral::new("span"))],
+                                vec![
+                                    JsNode::StringLiteral(StringLiteral::new("span")),
+                                    JsNode::NullLiteral(NullLiteral::new())
+                                ],
                             )),
                         ],
                     ))
