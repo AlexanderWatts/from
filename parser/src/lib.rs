@@ -27,11 +27,14 @@ impl Parser {
     }
 
     fn element(&self) -> Result<Proto, ()> {
-        let Token { token_type, .. } = self.next_or_err([TokenType::Div, TokenType::Span])?;
+        let element_type = TokenType::from(&self.next_or_err([TokenType::Div, TokenType::Span])?);
 
         let block = self.element_block()?;
 
-        Ok(Proto::Element(Element::new(&token_type.to_string(), block)))
+        Ok(Proto::Element(Element::new(
+            &element_type.to_string(),
+            block,
+        )))
     }
 
     fn element_block(&self) -> Result<Vec<Proto>, ()> {
@@ -40,11 +43,8 @@ impl Parser {
         let mut elements: Vec<Proto> = vec![];
 
         while !matches!(
-            &*self.token_buffer.peek(),
-            Token {
-                token_type: TokenType::RightBrace,
-                ..
-            }
+            TokenType::from(&*self.token_buffer.peek()),
+            TokenType::RightBrace
         ) {
             elements.push(self.element()?);
         }
@@ -58,16 +58,17 @@ impl Parser {
     where
         T: IntoIterator<Item = TokenType>,
     {
-        match self.token_buffer.next() {
-            token
-                if expected_token_types
-                    .into_iter()
-                    .any(|expected| expected == token.token_type) =>
-            {
-                Ok(token)
-            }
-            _ => Err(()),
+        let token = self.token_buffer.next();
+        let token_type = TokenType::from(&token);
+
+        if expected_token_types
+            .into_iter()
+            .any(|expected| token_type == expected)
+        {
+            return Ok(token);
         }
+
+        Err(())
     }
 }
 
@@ -78,7 +79,7 @@ mod parser {
     #[test]
     fn expect_token_type() {
         assert_eq!(
-            Ok(Token::new(TokenType::Span)),
+            Ok(Token::Span),
             Parser::new("span {}").next_or_err([TokenType::Span, TokenType::Div])
         );
     }

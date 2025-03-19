@@ -4,6 +4,7 @@ use std::fmt::Display;
 pub enum TokenType {
     Div,
     Span,
+    Literal,
     LeftBrace,
     RightBrace,
     Error,
@@ -15,6 +16,7 @@ impl Display for TokenType {
         match self {
             Self::Div => write!(f, "div"),
             Self::Span => write!(f, "span"),
+            Self::Literal => write!(f, "literal"),
             Self::LeftBrace => write!(f, "{{"),
             Self::RightBrace => write!(f, "}}"),
             Self::Error => write!(f, "error"),
@@ -24,12 +26,32 @@ impl Display for TokenType {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Token {
-    pub token_type: TokenType,
+pub enum Literal {
+    String(String),
+    Number(f64),
 }
 
-impl Token {
-    pub fn new(token_type: TokenType) -> Self {
-        Self { token_type }
+#[derive(Debug, PartialEq)]
+pub enum Token {
+    Div,
+    Span,
+    Literal(Literal),
+    LeftBrace,
+    RightBrace,
+    Error,
+    End,
+}
+
+impl From<&Token> for TokenType {
+    fn from(token: &Token) -> Self {
+        match token {
+            Token::Div => TokenType::Div,
+            Token::Span => TokenType::Span,
+            Token::Literal { .. } => TokenType::Literal,
+            Token::LeftBrace => TokenType::LeftBrace,
+            Token::RightBrace => TokenType::RightBrace,
+            Token::Error => TokenType::Error,
+            Token::End => TokenType::End,
+        }
     }
 }
