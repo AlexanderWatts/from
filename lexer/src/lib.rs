@@ -1,5 +1,5 @@
 use std::cell::Cell;
-use token::{Literal, Token};
+use token::Token;
 
 #[derive(Debug, PartialEq)]
 pub struct Lexer {
@@ -47,7 +47,7 @@ impl Lexer {
                 self.next_char();
 
                 match self.input.get(self.start.get()..self.current.get()) {
-                    Some(value) => Token::Literal(Literal::String(value.into_iter().collect())),
+                    Some(value) => Token::Literal(value.into_iter().collect()),
                     _ => Token::Error,
                 }
             }
@@ -93,10 +93,7 @@ mod lexer {
 
         assert_eq!(Token::Div, lexer.token());
         assert_eq!(Token::LeftBrace, lexer.token());
-        assert_eq!(
-            Token::Literal(Literal::String("\"Hello, 🌎!\"".to_string())),
-            lexer.token()
-        );
+        assert_eq!(Token::Literal("\"Hello, 🌎!\"".to_string()), lexer.token());
         assert_eq!(Token::RightBrace, lexer.token());
         assert_eq!(Token::End, lexer.token());
     }
