@@ -14,8 +14,8 @@ pub enum TokenType {
 impl Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Div => write!(f, "div"),
-            Self::Span => write!(f, "span"),
+            Self::Div => write!(f, "\"div\""),
+            Self::Span => write!(f, "\"span\""),
             Self::Literal => write!(f, "literal"),
             Self::LeftBrace => write!(f, "{{"),
             Self::RightBrace => write!(f, "}}"),
@@ -26,16 +26,10 @@ impl Display for TokenType {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum Literal {
-    String(String),
-    Number(f64),
-}
-
-#[derive(Debug, PartialEq)]
 pub enum Token {
     Div,
     Span,
-    Literal(Literal),
+    Literal(String),
     LeftBrace,
     RightBrace,
     Error,
@@ -47,7 +41,7 @@ impl From<&Token> for TokenType {
         match token {
             Token::Div => TokenType::Div,
             Token::Span => TokenType::Span,
-            Token::Literal { .. } => TokenType::Literal,
+            Token::Literal(_) => TokenType::Literal,
             Token::LeftBrace => TokenType::LeftBrace,
             Token::RightBrace => TokenType::RightBrace,
             Token::Error => TokenType::Error,
