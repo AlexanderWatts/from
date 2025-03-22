@@ -83,7 +83,7 @@ impl JsVisitor<String> for CodeGenerator {
     }
 
     fn visit_string_literal(&self, string_literal: &StringLiteral) -> String {
-        format!(r#""{}""#, string_literal.value)
+        format!("{}", string_literal.value)
     }
 
     fn visit_variable_declaration(&self, variable_declaration: &VariableDeclaration) -> String {
@@ -132,7 +132,7 @@ mod code_generation {
                 VariableDeclarationKind::Let,
                 vec![JsNode::VariableDeclarator(VariableDeclarator::new(
                     Identifier::new("x"),
-                    JsNode::StringLiteral(StringLiteral::new("hello"))
+                    JsNode::StringLiteral(StringLiteral::new("\"hello\""))
                 )),]
             )))
         )
@@ -153,7 +153,7 @@ mod code_generation {
                         ))),
                     ))),
                 )),
-                vec![JsNode::StringLiteral(StringLiteral::new("div"))],
+                vec![JsNode::StringLiteral(StringLiteral::new("\"div\""))],
             )))
         );
     }
@@ -167,7 +167,7 @@ mod code_generation {
                     JsNode::Identifier(Identifier::new("document")),
                     Some(JsNode::Identifier(Identifier::new("createElement"))),
                 )),
-                vec![JsNode::StringLiteral(StringLiteral::new("div"))],
+                vec![JsNode::StringLiteral(StringLiteral::new("\"div\""))],
             )))
         );
     }
