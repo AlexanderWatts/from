@@ -57,6 +57,18 @@ impl ProtoVisitor<JsNode> for Transpiler {
             arguments,
         ))
     }
+
+    /// The `literal` function declaration is provided by the runtime library
+    ///
+    /// ```js
+    /// literal("Hello, World!")
+    /// ```
+    fn visit_literal(&self, literal: &String) -> JsNode {
+        JsNode::CallExpression(CallExpression::new(
+            JsNode::Identifier(Identifier::new("literal")),
+            vec![JsNode::StringLiteral(StringLiteral::new(literal))],
+        ))
+    }
 }
 
 #[cfg(test)]
