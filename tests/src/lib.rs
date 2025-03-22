@@ -6,7 +6,7 @@ mod end_to_end {
 
     #[test]
     fn create_dom_tree() {
-        let input = r#"div {span {} div {}}"#;
+        let input = r#"div {"Hello, 🌎!" span {} }"#;
 
         let parser = Parser::new(input);
 
@@ -19,7 +19,7 @@ mod end_to_end {
         let output = CodeGenerator::new().generate(&js_root);
 
         assert_eq!(
-            r#"function dom() {return element("div", element("span"), element("div"))}"#,
+            r#"function dom() {return element("div", null, literal("Hello, 🌎!"), element("span", null))}"#,
             output
         );
     }
