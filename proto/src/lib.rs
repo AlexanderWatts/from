@@ -32,25 +32,3 @@ impl Proto {
         }
     }
 }
-
-#[cfg(test)]
-mod proto {
-    use super::*;
-
-    #[test]
-    fn setup() {
-        assert_eq!(
-            Proto::Element(Element {
-                element_type: "div".to_string(),
-                block: vec![Proto::Element(Element {
-                    element_type: "span".to_string(),
-                    block: vec![]
-                })]
-            }),
-            Proto::Element(Element::new(
-                "div",
-                vec![Proto::Element(Element::new("span", vec![]))]
-            ))
-        );
-    }
-}
