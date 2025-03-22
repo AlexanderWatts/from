@@ -7,7 +7,9 @@ From is the source-to-source compiler for the From DSL.
 ```
 div {
     span {}
-    div {}
+    div {
+        "Hello, 🌎!"
+    }
 }
 ```
 
@@ -15,7 +17,7 @@ div {
 
 ```
 program := element
-element := ('div' | 'span') element_block
+element := ('div' | 'span') element_block | LITERAL
 element_block := '{' element* '}'
 ```
 
@@ -27,7 +29,7 @@ Take the following From code:
 
 ```
 div {
-    div {}
+    "Hello, 🌎!"
     span {}
 }
 ```
@@ -37,8 +39,10 @@ This is transformed into:
 ```js
 function dom() {
     return element("div",
-        element("span")
+        null,
+        literal("Hello, 🌎!"),
+        element("span", null)
     )
 }
 ```
-The From runtime library provides the `element` function declaration responsible for rendering the elements.
+The From runtime library provides the `element` and `literal` function declarations.
