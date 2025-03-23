@@ -7,7 +7,7 @@ mod token_buffer;
 /// Grammar
 ///
 /// program := element
-/// element := ('div' | 'span') element_block
+/// element := ('div' | 'span') element_block | LITERAL
 /// element_block := '{' element* '}'
 ///
 #[derive(Debug)]
@@ -27,11 +27,16 @@ impl Parser {
     }
 
     fn element(&self) -> Result<Proto, ()> {
-        let Token { token_type, .. } = self.next_or_err([TokenType::Div, TokenType::Span])?;
+        let token = &self.next_or_err([TokenType::Literal, TokenType::Div, TokenType::Span])?;
+        let element_type = TokenType::from(token);
 
-        let block = self.element_block()?;
-
-        Ok(Proto::Element(Element::new(&token_type.to_string(), block)))
+        Ok(match token {
+            Token::Literal(literal) => Proto::Literal(literal.to_string()),
+            _ => {
+                let block = self.element_block()?;
+                Proto::Element(Element::new(&element_type.to_string(), block))
+            }
+        })
     }
 
     fn element_block(&self) -> Result<Vec<Proto>, ()> {
@@ -40,11 +45,8 @@ impl Parser {
         let mut elements: Vec<Proto> = vec![];
 
         while !matches!(
-            &*self.token_buffer.peek(),
-            Token {
-                token_type: TokenType::RightBrace,
-                ..
-            }
+            TokenType::from(&*self.token_buffer.peek()),
+            TokenType::RightBrace
         ) {
             elements.push(self.element()?);
         }
@@ -58,16 +60,17 @@ impl Parser {
     where
         T: IntoIterator<Item = TokenType>,
     {
-        match self.token_buffer.next() {
-            token
-                if expected_token_types
-                    .into_iter()
-                    .any(|expected| expected == token.token_type) =>
-            {
-                Ok(token)
-            }
-            _ => Err(()),
+        let token = self.token_buffer.next();
+        let token_type = TokenType::from(&token);
+
+        if expected_token_types
+            .into_iter()
+            .any(|expected| token_type == expected)
+        {
+            return Ok(token);
         }
+
+        Err(())
     }
 }
 
@@ -78,7 +81,12 @@ mod parser {
     #[test]
     fn expect_token_type() {
         assert_eq!(
-            Ok(Token::new(TokenType::Span)),
+            Ok(Token::Literal("\"Hello, World!\"".to_string())),
+            Parser::new(r#""Hello, World!""#).next_or_err([TokenType::Literal])
+        );
+
+        assert_eq!(
+            Ok(Token::Span),
             Parser::new("span {}").next_or_err([TokenType::Span, TokenType::Div])
         );
     }
@@ -87,14 +95,14 @@ mod parser {
     fn parse() {
         assert_eq!(
             Ok(Proto::Element(Element::new(
-                "span",
-                vec![Proto::Element(Element::new("div", vec![]))]
+                "\"span\"",
+                vec![Proto::Element(Element::new("\"div\"", vec![]))]
             ))),
             Parser::new("span{div{}}").parse(),
         );
 
         assert_eq!(
-            Ok(Proto::Element(Element::new("div", vec![]))),
+            Ok(Proto::Element(Element::new("\"div\"", vec![]))),
             Parser::new("div {}").parse()
         );
     }

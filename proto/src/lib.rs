@@ -1,10 +1,12 @@
 #[derive(Debug, PartialEq)]
 pub enum Proto {
     Element(Element),
+    Literal(String),
 }
 
 pub trait ProtoVisitor<T> {
     fn visit_element(&self, element: &Element) -> T;
+    fn visit_literal(&self, literal: &String) -> T;
 }
 
 #[derive(Debug, PartialEq)]
@@ -26,28 +28,7 @@ impl Proto {
     pub fn accept<T>(&self, visitor: &impl ProtoVisitor<T>) -> T {
         match self {
             Self::Element(element) => visitor.visit_element(element),
+            Self::Literal(string) => visitor.visit_literal(string),
         }
-    }
-}
-
-#[cfg(test)]
-mod proto {
-    use super::*;
-
-    #[test]
-    fn setup() {
-        assert_eq!(
-            Proto::Element(Element {
-                element_type: "div".to_string(),
-                block: vec![Proto::Element(Element {
-                    element_type: "span".to_string(),
-                    block: vec![]
-                })]
-            }),
-            Proto::Element(Element::new(
-                "div",
-                vec![Proto::Element(Element::new("span", vec![]))]
-            ))
-        );
     }
 }
