@@ -31,6 +31,19 @@ impl Lexer {
         match self.next_char() {
             Some('{') => Token::LeftBrace,
             Some('}') => Token::RightBrace,
+            Some('=') => Token::Equal,
+            Some('@') => {
+                while let Some('a'..='z') = self.peek_char() {
+                    self.next_char();
+                }
+
+                match self.input.get(self.start.get() + 1..self.current.get()) {
+                    Some(word) => match word.into_iter().collect::<String>().as_str() {
+                        _ => return Token::Attribute(word.into_iter().collect()),
+                    },
+                    _ => return Token::Error,
+                }
+            }
             Some('\"') => {
                 while let Some(char @ '\u{0000}'..='\u{10FFFF}') = self.peek_char() {
                     if matches!(char, '\"') {
@@ -86,6 +99,15 @@ impl Lexer {
 #[cfg(test)]
 mod lexer {
     use super::*;
+
+    #[test]
+    fn tokenize_attributes() {
+        let lexer = Lexer::new(r#"@action="/api""#);
+
+        assert_eq!(Token::Attribute("action".to_string()), lexer.token());
+        assert_eq!(Token::Equal, lexer.token());
+        assert_eq!(Token::Literal("\"/api\"".to_string()), lexer.token());
+    }
 
     #[test]
     fn tokenize_strings() {

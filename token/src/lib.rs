@@ -5,6 +5,8 @@ pub enum TokenType {
     Div,
     Span,
     Literal,
+    Attribute,
+    Equal,
     LeftBrace,
     RightBrace,
     Error,
@@ -16,7 +18,9 @@ impl Display for TokenType {
         match self {
             Self::Div => write!(f, "\"div\""),
             Self::Span => write!(f, "\"span\""),
+            Self::Attribute => write!(f, "attribute"),
             Self::Literal => write!(f, "literal"),
+            Self::Equal => write!(f, "="),
             Self::LeftBrace => write!(f, "{{"),
             Self::RightBrace => write!(f, "}}"),
             Self::Error => write!(f, "error"),
@@ -29,7 +33,9 @@ impl Display for TokenType {
 pub enum Token {
     Div,
     Span,
+    Attribute(String),
     Literal(String),
+    Equal,
     LeftBrace,
     RightBrace,
     Error,
@@ -41,6 +47,8 @@ impl From<&Token> for TokenType {
         match token {
             Token::Div => TokenType::Div,
             Token::Span => TokenType::Span,
+            Token::Attribute(_) => TokenType::Attribute,
+            Token::Equal => TokenType::Equal,
             Token::Literal(_) => TokenType::Literal,
             Token::LeftBrace => TokenType::LeftBrace,
             Token::RightBrace => TokenType::RightBrace,
