@@ -5,7 +5,7 @@ mod end_to_end {
     use transpiler::Transpiler;
 
     #[test]
-    fn elements_with_attrs() {
+    fn create_elements_with_attributes() {
         let input = r#"
             div {
                 @id="root"
