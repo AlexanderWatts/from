@@ -1,4 +1,4 @@
-use proto::{Element, Proto};
+use proto::{Attribute, Element, Proto};
 use token::{Token, TokenType};
 use token_buffer::TokenBuffer;
 mod token_buffer;
@@ -8,7 +8,8 @@ mod token_buffer;
 ///
 /// program := element
 /// element := ('div' | 'span') element_block | LITERAL
-/// element_block := '{' element* '}'
+/// element_block := '{' (element | attribute)* '}'
+/// attribute := '@' LITERAL '=' LITERAL ';'
 ///
 #[derive(Debug)]
 pub struct Parser {
@@ -22,11 +23,11 @@ impl Parser {
         }
     }
 
-    pub fn parse(&self) -> Result<Proto, ()> {
+    pub fn parse(&mut self) -> Result<Proto, ()> {
         self.element()
     }
 
-    fn element(&self) -> Result<Proto, ()> {
+    fn element(&mut self) -> Result<Proto, ()> {
         let token = &self.next_or_err([TokenType::Literal, TokenType::Div, TokenType::Span])?;
         let element_type = TokenType::from(token);
 
@@ -39,16 +40,16 @@ impl Parser {
         })
     }
 
-    fn element_block(&self) -> Result<Vec<Proto>, ()> {
+    fn element_block(&mut self) -> Result<Vec<Proto>, ()> {
         self.next_or_err([TokenType::LeftBrace])?;
 
         let mut elements: Vec<Proto> = vec![];
 
-        while !matches!(
-            TokenType::from(&*self.token_buffer.peek()),
-            TokenType::RightBrace
-        ) {
-            elements.push(self.element()?);
+        while !matches!(self.token_buffer.peek_token_type(), TokenType::RightBrace) {
+            match self.token_buffer.peek() {
+                Token::Attribute(_) => elements.push(self.attribute()?),
+                _ => elements.push(self.element()?),
+            }
         }
 
         self.next_or_err([TokenType::RightBrace])?;
@@ -56,7 +57,23 @@ impl Parser {
         Ok(elements)
     }
 
-    fn next_or_err<T>(&self, expected_token_types: T) -> Result<Token, ()>
+    fn attribute(&mut self) -> Result<Proto, ()> {
+        let name = match self.next_or_err([TokenType::Attribute])? {
+            Token::Attribute(name) => name,
+            _ => return Err(()),
+        };
+
+        self.next_or_err([TokenType::Equal])?;
+
+        let value = match self.next_or_err([TokenType::Literal])? {
+            Token::Literal(literal) => literal,
+            _ => return Err(()),
+        };
+
+        Ok(Proto::Attribute(Attribute::new(&name, &value)))
+    }
+
+    fn next_or_err<T>(&mut self, expected_token_types: T) -> Result<Token, ()>
     where
         T: IntoIterator<Item = TokenType>,
     {
@@ -81,6 +98,11 @@ mod parser {
     #[test]
     fn expect_token_type() {
         assert_eq!(
+            Ok(Token::Attribute("style".to_string())),
+            Parser::new(r#"@style="color: red;""#).next_or_err([TokenType::Attribute])
+        );
+
+        assert_eq!(
             Ok(Token::Literal("\"Hello, World!\"".to_string())),
             Parser::new(r#""Hello, World!""#).next_or_err([TokenType::Literal])
         );
@@ -92,7 +114,29 @@ mod parser {
     }
 
     #[test]
-    fn parse() {
+    fn parse_elements_with_attributes() {
+        assert_eq!(
+            Ok(Proto::Element(Element::new(
+                "\"span\"",
+                vec![
+                    Proto::Attribute(Attribute::new("style", "\"\"")),
+                    Proto::Element(Element::new("\"div\"", vec![]))
+                ]
+            ))),
+            Parser::new(r#"span {@style="" div{}}"#).parse(),
+        );
+
+        assert_eq!(
+            Ok(Proto::Element(Element::new(
+                "\"span\"",
+                vec![Proto::Attribute(Attribute::new("style", "\"\""))]
+            ))),
+            Parser::new(r#"span {@style=""}"#).parse(),
+        );
+    }
+
+    #[test]
+    fn parse_elements() {
         assert_eq!(
             Ok(Proto::Element(Element::new(
                 "\"span\"",

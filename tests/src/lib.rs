@@ -5,10 +5,19 @@ mod end_to_end {
     use transpiler::Transpiler;
 
     #[test]
-    fn create_dom_tree() {
-        let input = r#"div {"Hello, 🌎!" span {} }"#;
+    fn create_elements_with_attributes() {
+        let input = r#"
+            div {
+                @id="root"
 
-        let parser = Parser::new(input);
+                span {
+                    @id="nested"
+                    "Main"
+                }
+            }
+        "#;
+
+        let mut parser = Parser::new(input);
 
         let proto_root = match parser.parse() {
             Ok(proto) => proto,
@@ -19,7 +28,27 @@ mod end_to_end {
         let output = CodeGenerator::new().generate(&js_root);
 
         assert_eq!(
-            r#"function dom() {return element("div", null, literal("Hello, 🌎!"), element("span", null))}"#,
+            r#"function dom() {return element("div", {id: "root"}, element("span", {id: "nested"}, literal("Main")))}"#,
+            output
+        );
+    }
+
+    #[test]
+    fn create_dom_tree() {
+        let input = r#"div {"Hello, 🌎!" span {} }"#;
+
+        let mut parser = Parser::new(input);
+
+        let proto_root = match parser.parse() {
+            Ok(proto) => proto,
+            Err(_) => return eprintln!("Parser error"),
+        };
+
+        let js_root = Transpiler.transpile(&proto_root);
+        let output = CodeGenerator::new().generate(&js_root);
+
+        assert_eq!(
+            r#"function dom() {return element("div", {}, literal("Hello, 🌎!"), element("span", {}))}"#,
             output
         );
     }

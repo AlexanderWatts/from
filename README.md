@@ -6,8 +6,12 @@ From is the source-to-source compiler for the From DSL.
 
 ```
 div {
+    @id="main"
+
     span {}
+
     div {
+        @style="padding: 20px;"
         "Hello, 🌎!"
     }
 }
@@ -18,7 +22,8 @@ div {
 ```
 program := element
 element := ('div' | 'span') element_block | LITERAL
-element_block := '{' element* '}'
+element_block := '{' (element | attribute)* '}'
+attribute := '@' LITERAL '=' LITERAL
 ```
 
 ## How
@@ -29,6 +34,7 @@ Take the following From code:
 
 ```
 div {
+    @class="flex"
     "Hello, 🌎!"
     span {}
 }
@@ -38,10 +44,13 @@ This is transformed into:
 
 ```js
 function dom() {
-    return element("div",
-        null,
+    return element(
+        "div",
+        {
+            class: "flex"
+        },
         literal("Hello, 🌎!"),
-        element("span", null)
+        element("span", {})
     )
 }
 ```
