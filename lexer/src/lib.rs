@@ -22,7 +22,7 @@ impl Lexer {
     }
 
     fn scan(&self) -> Token {
-        while let Some(' ') = self.peek_char() {
+        while let Some(' ' | '\n' | '\t' | '\r') = self.peek_char() {
             self.next_char();
         }
 
