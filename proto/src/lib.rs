@@ -28,15 +28,15 @@ impl Element {
 
 #[derive(Debug, PartialEq)]
 pub struct Attribute {
-    name: String,
-    value: Box<Proto>,
+    pub name: String,
+    pub value: String,
 }
 
 impl Attribute {
     pub fn new(name: &str, value: &str) -> Self {
         Self {
             name: name.to_string(),
-            value: Box::new(Proto::Literal(value.to_string())),
+            value: value.to_string(),
         }
     }
 }
