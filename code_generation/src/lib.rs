@@ -2,6 +2,7 @@ use estree::{
     JsNode, JsVisitor, block_statement::BlockStatement, call_expression::CallExpression,
     function_declaration::FunctionDeclaration, identifier::Identifier,
     member_expression::MemberExpression, null_literal::NullLiteral,
+    object_expression::ObjectExpression, object_property::ObjectProperty,
     return_statement::ReturnStatement, string_literal::StringLiteral,
     variable_declaration::VariableDeclaration, variable_declarator::VariableDeclarator,
 };
@@ -116,6 +117,26 @@ impl JsVisitor<String> for CodeGenerator {
     fn visit_null_literal(&self, null_literal: &NullLiteral) -> String {
         format!("{}", null_literal.value)
     }
+
+    fn visit_object_expression(&self, object_expression: &ObjectExpression) -> String {
+        format!(
+            "{{{}}}",
+            object_expression
+                .properties
+                .iter()
+                .map(|property| property.accept(self))
+                .collect::<Vec<String>>()
+                .join(", ")
+        )
+    }
+
+    fn visit_object_property(&self, object_property: &ObjectProperty) -> String {
+        format!(
+            "{}: {}",
+            object_property.key.accept(self),
+            object_property.value.accept(self)
+        )
+    }
 }
 
 #[cfg(test)]
@@ -123,6 +144,17 @@ mod code_generation {
     use estree::variable_declaration::VariableDeclarationKind;
 
     use super::*;
+
+    #[test]
+    fn generate_objects() {
+        assert_eq!(
+            r#"{id: "main", class: "container"}"#,
+            CodeGenerator.generate(&JsNode::ObjectExpression(ObjectExpression::new(vec![
+                JsNode::ObjectProperty(ObjectProperty::new("id", "\"main\"",)),
+                JsNode::ObjectProperty(ObjectProperty::new("class", "\"container\"",)),
+            ])))
+        )
+    }
 
     #[test]
     fn generate_variable() {
