@@ -23,7 +23,7 @@ div {
 program := element
 element := ('div' | 'span') element_block | LITERAL
 element_block := '{' (element | attribute)* '}'
-attribute := '@' LITERAL '=' LITERAL ';'
+attribute := '@' LITERAL '=' LITERAL
 ```
 
 ## How
@@ -44,7 +44,9 @@ This is transformed into:
 
 ```js
 function dom() {
-    return element("div", {
+    return element(
+        "div",
+        {
             class: "flex"
         },
         literal("Hello, 🌎!"),
