@@ -6,6 +6,7 @@ pub mod js_node_type;
 pub mod member_expression;
 pub mod null_literal;
 pub mod object_expression;
+pub mod object_property;
 pub mod return_statement;
 pub mod string_literal;
 pub mod variable_declaration;
@@ -18,6 +19,7 @@ use identifier::Identifier;
 use member_expression::MemberExpression;
 use null_literal::NullLiteral;
 use object_expression::ObjectExpression;
+use object_property::ObjectProperty;
 use return_statement::ReturnStatement;
 use string_literal::StringLiteral;
 use variable_declaration::VariableDeclaration;
@@ -35,6 +37,7 @@ pub trait JsVisitor<T> {
     fn visit_variable_declarator(&self, variable_declarator: &VariableDeclarator) -> T;
     fn visit_null_literal(&self, null_literal: &NullLiteral) -> T;
     fn visit_object_expression(&self, object_expression: &ObjectExpression) -> T;
+    fn visit_object_property(&self, object_property: &ObjectProperty) -> T;
 }
 
 #[derive(Debug, PartialEq)]
@@ -50,6 +53,7 @@ pub enum JsNode {
     VariableDeclarator(VariableDeclarator),
     NullLiteral(NullLiteral),
     ObjectExpression(ObjectExpression),
+    ObjectProperty(ObjectProperty),
 }
 
 impl JsNode {
@@ -78,6 +82,7 @@ impl JsNode {
             Self::ObjectExpression(object_expression) => {
                 visitor.visit_object_expression(object_expression)
             }
+            Self::ObjectProperty(object_property) => visitor.visit_object_property(object_property),
         }
     }
 }
