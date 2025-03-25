@@ -1,6 +1,7 @@
 use estree::{
     JsNode, block_statement::BlockStatement, call_expression::CallExpression,
     function_declaration::FunctionDeclaration, identifier::Identifier, null_literal::NullLiteral,
+    object_expression::ObjectExpression, object_property::ObjectProperty,
     return_statement::ReturnStatement, string_literal::StringLiteral,
 };
 use proto::{Element, Proto, ProtoVisitor};
@@ -18,7 +19,9 @@ impl Transpiler {
     ///
     /// ```js
     /// function dom() {
-    ///     return element("div", null,
+    ///     return element(
+    ///         "div",
+    ///         {},
     ///         element("span", {})
     ///     );
     /// }
@@ -34,23 +37,29 @@ impl ProtoVisitor<JsNode> for Transpiler {
     /// The `element` function declaration is provided by the runtime library
     ///
     /// ```js
-    /// element("div", null,
+    /// element(
+    ///     "div",
+    ///     { class: "" },
     ///     element("span", {})
     /// );
     /// ```
     fn visit_element(&self, element: &Element) -> JsNode {
-        let mut arguments = vec![
-            JsNode::StringLiteral(StringLiteral::new(&element.element_type)),
-            JsNode::NullLiteral(NullLiteral::new()),
-        ];
+        let mut arguments = vec![JsNode::StringLiteral(StringLiteral::new(
+            &element.element_type,
+        ))];
 
-        arguments.extend(
-            element
-                .block
-                .iter()
-                .map(|ele| ele.accept(self))
-                .collect::<Vec<JsNode>>(),
-        );
+        let mut attributes = ObjectExpression::new(vec![]);
+        let mut elements = vec![];
+
+        element.block.iter().for_each(|ele| {
+            match ele.accept(self) {
+                property @ JsNode::ObjectProperty(_) => attributes.properties.push(property),
+                other @ _ => elements.push(other),
+            };
+        });
+
+        arguments.push(JsNode::ObjectExpression(attributes));
+        arguments.extend(elements);
 
         JsNode::CallExpression(CallExpression::new(
             JsNode::Identifier(Identifier::new("element")),
@@ -69,11 +78,50 @@ impl ProtoVisitor<JsNode> for Transpiler {
             vec![JsNode::StringLiteral(StringLiteral::new(literal))],
         ))
     }
+
+    /// ```js
+    /// {
+    ///     class: "flex"
+    ///     style: "padding"
+    /// }
+    /// ```
+    fn visit_attribute(&self, attribute: &proto::Attribute) -> JsNode {
+        JsNode::ObjectProperty(ObjectProperty::new(&attribute.name, &attribute.value))
+    }
 }
 
 #[cfg(test)]
 mod transpiler {
+    use proto::Attribute;
+
     use super::*;
+
+    #[test]
+    fn transpile_elements_with_attributes() {
+        assert_eq!(
+            JsNode::FunctionDeclaration(FunctionDeclaration::new(
+                Identifier::new("dom"),
+                BlockStatement::new(vec![JsNode::ReturnStatement(ReturnStatement::new(
+                    JsNode::CallExpression(CallExpression::new(
+                        JsNode::Identifier(Identifier::new("element")),
+                        vec![
+                            JsNode::StringLiteral(StringLiteral::new("div")),
+                            JsNode::ObjectExpression(ObjectExpression::new(vec![
+                                JsNode::ObjectProperty(ObjectProperty::new(
+                                    "style",
+                                    "\"color: red;\""
+                                ))
+                            ])),
+                        ],
+                    ))
+                ))]),
+            )),
+            Transpiler.transpile(&Proto::Element(Element::new(
+                "div",
+                vec![Proto::Attribute(Attribute::new("style", "\"color: red;\"")),],
+            )))
+        );
+    }
 
     #[test]
     fn transpile_elements() {
@@ -85,12 +133,12 @@ mod transpiler {
                         JsNode::Identifier(Identifier::new("element")),
                         vec![
                             JsNode::StringLiteral(StringLiteral::new("div")),
-                            JsNode::NullLiteral(NullLiteral::new()),
+                            JsNode::ObjectExpression(ObjectExpression::new(vec![])),
                             JsNode::CallExpression(CallExpression::new(
                                 JsNode::Identifier(Identifier::new("element")),
                                 vec![
                                     JsNode::StringLiteral(StringLiteral::new("span")),
-                                    JsNode::NullLiteral(NullLiteral::new())
+                                    JsNode::ObjectExpression(ObjectExpression::new(vec![])),
                                 ],
                             )),
                         ],
