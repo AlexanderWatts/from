@@ -2,6 +2,10 @@ use std::fmt::Display;
 
 #[derive(Debug, PartialEq)]
 pub enum TokenType {
+    P,
+    Form,
+    Input,
+    Button,
     Div,
     Span,
     Literal,
@@ -16,6 +20,10 @@ pub enum TokenType {
 impl Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::P => write!(f, "\"p\""),
+            Self::Form => write!(f, "\"form\""),
+            Self::Input => write!(f, "\"input\""),
+            Self::Button => write!(f, "\"button\""),
             Self::Div => write!(f, "\"div\""),
             Self::Span => write!(f, "\"span\""),
             Self::Attribute => write!(f, "attribute"),
@@ -31,6 +39,10 @@ impl Display for TokenType {
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
+    P,
+    Form,
+    Input,
+    Button,
     Div,
     Span,
     Attribute(String),
@@ -54,6 +66,10 @@ impl From<&Token> for TokenType {
             Token::RightBrace => TokenType::RightBrace,
             Token::Error => TokenType::Error,
             Token::End => TokenType::End,
+            Token::P => TokenType::P,
+            Token::Form => TokenType::Form,
+            Token::Input => TokenType::Input,
+            Token::Button => TokenType::Button,
         }
     }
 }

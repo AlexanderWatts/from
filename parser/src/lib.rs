@@ -7,7 +7,13 @@ mod token_buffer;
 /// Grammar
 ///
 /// program := element
-/// element := ('div' | 'span') element_block | LITERAL
+/// element := ('div'
+///     | 'span'
+///     | 'p'
+///     | 'form'
+///     | 'input'
+///     | 'button'
+/// ) element_block | LITERAL
 /// element_block := '{' (element | attribute)* '}'
 /// attribute := '@' LITERAL '=' LITERAL ';'
 ///
@@ -28,7 +34,15 @@ impl Parser {
     }
 
     fn element(&mut self) -> Result<Proto, ()> {
-        let token = &self.next_or_err([TokenType::Literal, TokenType::Div, TokenType::Span])?;
+        let token = &self.next_or_err([
+            TokenType::Literal,
+            TokenType::Div,
+            TokenType::Span,
+            TokenType::Button,
+            TokenType::P,
+            TokenType::Input,
+            TokenType::Form,
+        ])?;
         let element_type = TokenType::from(token);
 
         Ok(match token {
