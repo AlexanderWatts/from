@@ -17,13 +17,42 @@ div {
 }
 ```
 
+```
+form {
+    @method="POST"
+    @class="container mx-auto flex flex-col gap-5 items-center h-screen justify-center"
+
+    input {
+        @type="text"
+        @class="border w-full md:w-1/2 p-2"
+    }
+
+    input {
+        @type="password"
+        @class="border w-full md:w-1/2 p-2"
+    }
+
+    button {
+        @type="submit"
+        @class="border p-2 cursor-pointer"
+        "Submit"
+    }
+}
+```
+
 ## Grammar
 
 ```
 program := element
-element := ('div' | 'span') element_block | LITERAL
+element := ('div'
+    | 'span'
+    | 'p'
+    | 'form'
+    | 'input'
+    | 'button'
+) element_block | LITERAL
 element_block := '{' (element | attribute)* '}'
-attribute := '@' LITERAL '=' LITERAL
+attribute := '@' LITERAL '=' LITERAL ';'
 ```
 
 ## How
