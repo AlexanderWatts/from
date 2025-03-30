@@ -1,9 +1,15 @@
-use std::error::Error;
+use std::{error::Error, path::PathBuf};
 
 use clap::Parser;
 
 #[derive(Parser, Debug, PartialEq)]
-pub struct CliArgs {}
+pub struct CliArgs {
+    #[arg(short, long)]
+    input_path: PathBuf,
+
+    #[arg(short, long, default_value = "./")]
+    output_path: PathBuf,
+}
 
 #[derive(Parser, Debug)]
 pub struct Cli {}
@@ -22,8 +28,14 @@ mod cli_tests {
 
     #[test]
     fn cli_args() {
-        let output = CliArgs::parse_from([""]);
+        let output = CliArgs::parse_from(["", "-i", "./main.from"]);
 
-        assert_eq!(CliArgs {}, output)
+        assert_eq!(
+            CliArgs {
+                input_path: PathBuf::from("./main.from"),
+                output_path: PathBuf::from("./"),
+            },
+            output
+        )
     }
 }
