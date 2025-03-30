@@ -135,6 +135,9 @@ version = "0.1.0"
 [[package]]
 name = "from"
 version = "0.1.0"
+dependencies = [
+ "cli",
+]
 
 [[package]]
 name = "heck"
