@@ -1,0 +1,11 @@
+[package]
+name = "cli"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+parser = { path = "../parser" }
+proto = { path = "../proto" }
+estree = { path = "../estree" }
+transpiler = { path = "../transpiler" }
+code_generation = { path = "../code_generation" }

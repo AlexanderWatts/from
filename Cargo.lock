@@ -3,6 +3,17 @@
 version = 4
 
 [[package]]
+name = "cli"
+version = "0.1.0"
+dependencies = [
+ "code_generation",
+ "estree",
+ "parser",
+ "proto",
+ "transpiler",
+]
+
+[[package]]
 name = "code_generation"
 version = "0.1.0"
 dependencies = [
