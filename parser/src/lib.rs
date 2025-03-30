@@ -1,3 +1,5 @@
+mod parser_error;
+use parser_error::ParserError;
 use proto::{Attribute, Element, Proto};
 use token::{Token, TokenType};
 use token_buffer::TokenBuffer;
@@ -29,11 +31,11 @@ impl Parser {
         }
     }
 
-    pub fn parse(&mut self) -> Result<Proto, ()> {
+    pub fn parse(&mut self) -> Result<Proto, ParserError> {
         self.element()
     }
 
-    fn element(&mut self) -> Result<Proto, ()> {
+    fn element(&mut self) -> Result<Proto, ParserError> {
         let token = &self.next_or_err([
             TokenType::Literal,
             TokenType::Div,
@@ -54,7 +56,7 @@ impl Parser {
         })
     }
 
-    fn element_block(&mut self) -> Result<Vec<Proto>, ()> {
+    fn element_block(&mut self) -> Result<Vec<Proto>, ParserError> {
         self.next_or_err([TokenType::LeftBrace])?;
 
         let mut elements: Vec<Proto> = vec![];
@@ -71,23 +73,23 @@ impl Parser {
         Ok(elements)
     }
 
-    fn attribute(&mut self) -> Result<Proto, ()> {
+    fn attribute(&mut self) -> Result<Proto, ParserError> {
         let name = match self.next_or_err([TokenType::Attribute])? {
             Token::Attribute(name) => name,
-            _ => return Err(()),
+            _ => return Err(ParserError::UnknownAttribute),
         };
 
         self.next_or_err([TokenType::Equal])?;
 
         let value = match self.next_or_err([TokenType::Literal])? {
             Token::Literal(literal) => literal,
-            _ => return Err(()),
+            _ => return Err(ParserError::UnknownAttribute),
         };
 
         Ok(Proto::Attribute(Attribute::new(&name, &value)))
     }
 
-    fn next_or_err<T>(&mut self, expected_token_types: T) -> Result<Token, ()>
+    fn next_or_err<T>(&mut self, expected_token_types: T) -> Result<Token, ParserError>
     where
         T: IntoIterator<Item = TokenType>,
     {
@@ -101,7 +103,7 @@ impl Parser {
             return Ok(token);
         }
 
-        Err(())
+        Err(ParserError::UnexpectedToken)
     }
 }
 
