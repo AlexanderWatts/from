@@ -87,11 +87,11 @@ The From runtime library provides the `element` and `literal` function declarati
 
 ## Usage
 
-The From CLI is responsible for processing .from files and outputting .js
+The From CLI is responsible for reading .from files and outputting .js
 
 ```bash
 # Outputs an io::Error or from.js file at "./"
-from -i "<input>"
+from -i "<input.from>"
 
 # Outputs a io::Error or js file at a given path
 from -i "<input.from>" -o "<output.js>"
