@@ -1,24 +1,52 @@
-use std::{error::Error, path::PathBuf};
+use std::{
+    error::Error,
+    fs,
+    io::{self, Write, stderr, stdout},
+    path::PathBuf,
+};
 
-use clap::Parser;
+use clap::Parser as ClapParser;
+use code_generation::CodeGenerator;
+use parser::Parser;
+use transpiler::Transpiler;
 
-#[derive(Parser, Debug, PartialEq)]
+#[derive(ClapParser, Debug, PartialEq)]
 pub struct CliArgs {
     #[arg(short, long)]
     input_path: PathBuf,
 
-    #[arg(short, long, default_value = "./")]
+    #[arg(short, long, default_value = "./from.js")]
     output_path: PathBuf,
 }
 
-#[derive(Parser, Debug)]
-pub struct Cli {}
+#[derive(ClapParser, Debug)]
+pub struct Cli;
 
 impl Cli {
-    pub fn run() -> Result<(), Box<dyn Error>> {
-        let cli_args = CliArgs::parse();
+    pub fn run(&self) -> Result<(), io::Error> {
+        match self.process() {
+            Ok(output) => writeln!(stdout(), "{}", output),
+            Err(error) => writeln!(stderr(), "{}", error),
+        }
+    }
 
-        Ok(())
+    fn process(&self) -> Result<String, Box<dyn Error>> {
+        let CliArgs {
+            input_path,
+            output_path,
+        } = CliArgs::parse();
+
+        let input = fs::read_to_string(input_path)?;
+
+        let proto = Parser::new(&input).parse()?;
+        let transpiler = Transpiler;
+        let estree = transpiler.transpile(&proto);
+        let output = CodeGenerator::new().generate(&estree);
+
+        let mut output_file = fs::File::create(output_path)?;
+        output_file.write_all(output.as_bytes())?;
+
+        Ok(output)
     }
 }
 
