@@ -15,9 +15,9 @@ mod token_buffer;
 ///     | 'form'
 ///     | 'input'
 ///     | 'button'
-/// ) element_block | LITERAL
-/// element_block := '{' (element | attribute)* '}'
-/// attribute := '@' LITERAL '=' LITERAL ';'
+/// ) '{' (element | attribute)* '}' | literal
+/// attribute := '@' LITERAL '=' LITERAL
+/// literal := LITERAL
 ///
 #[derive(Debug)]
 pub struct Parser {
@@ -32,7 +32,11 @@ impl Parser {
     }
 
     pub fn parse(&mut self) -> Result<Proto, ParserError> {
-        self.element()
+        let proto = self.element();
+
+        self.next_or_err([TokenType::End])?;
+
+        proto
     }
 
     fn element(&mut self) -> Result<Proto, ParserError> {
@@ -47,30 +51,26 @@ impl Parser {
         ])?;
         let element_type = TokenType::from(token);
 
-        Ok(match token {
-            Token::Literal(literal) => Proto::Literal(literal.to_string()),
-            _ => {
-                let block = self.element_block()?;
-                Proto::Element(Element::new(&element_type.to_string(), block))
-            }
-        })
-    }
-
-    fn element_block(&mut self) -> Result<Vec<Proto>, ParserError> {
         self.next_or_err([TokenType::LeftBrace])?;
 
-        let mut elements: Vec<Proto> = vec![];
+        let mut attributes = vec![];
+        let mut children = vec![];
 
         while !matches!(self.token_buffer.peek_token_type(), TokenType::RightBrace) {
             match self.token_buffer.peek() {
-                Token::Attribute(_) => elements.push(self.attribute()?),
-                _ => elements.push(self.element()?),
+                Token::Attribute(_) => attributes.push(self.attribute()?),
+                Token::Literal(_) => children.push(self.literal()?),
+                _ => children.push(self.element()?),
             }
         }
 
         self.next_or_err([TokenType::RightBrace])?;
 
-        Ok(elements)
+        Ok(Proto::Element(Element::new(
+            &element_type.to_string(),
+            attributes,
+            children,
+        )))
     }
 
     fn attribute(&mut self) -> Result<Proto, ParserError> {
@@ -87,6 +87,16 @@ impl Parser {
         };
 
         Ok(Proto::Attribute(Attribute::new(&name, &value)))
+    }
+
+    /// This should return a Proto::TextElement
+    fn literal(&mut self) -> Result<Proto, ParserError> {
+        let value = match self.next_or_err([TokenType::Literal])? {
+            Token::Literal(literal) => literal,
+            _ => return Err(ParserError::UnexpectedToken),
+        };
+
+        Ok(Proto::Literal(value))
     }
 
     fn next_or_err<T>(&mut self, expected_token_types: T) -> Result<Token, ParserError>
@@ -134,10 +144,8 @@ mod parser {
         assert_eq!(
             Ok(Proto::Element(Element::new(
                 "\"span\"",
-                vec![
-                    Proto::Attribute(Attribute::new("style", "\"\"")),
-                    Proto::Element(Element::new("\"div\"", vec![]))
-                ]
+                vec![Proto::Attribute(Attribute::new("style", "\"\"")),],
+                vec![Proto::Element(Element::new("\"div\"", vec![], vec![]))]
             ))),
             Parser::new(r#"span {@style="" div{}}"#).parse(),
         );
@@ -145,7 +153,8 @@ mod parser {
         assert_eq!(
             Ok(Proto::Element(Element::new(
                 "\"span\"",
-                vec![Proto::Attribute(Attribute::new("style", "\"\""))]
+                vec![Proto::Attribute(Attribute::new("style", "\"\""))],
+                vec![],
             ))),
             Parser::new(r#"span {@style=""}"#).parse(),
         );
@@ -156,13 +165,14 @@ mod parser {
         assert_eq!(
             Ok(Proto::Element(Element::new(
                 "\"span\"",
-                vec![Proto::Element(Element::new("\"div\"", vec![]))]
+                vec![],
+                vec![Proto::Element(Element::new("\"div\"", vec![], vec![]))]
             ))),
             Parser::new("span{div{}}").parse(),
         );
 
         assert_eq!(
-            Ok(Proto::Element(Element::new("\"div\"", vec![]))),
+            Ok(Proto::Element(Element::new("\"div\"", vec![], vec![]))),
             Parser::new("div {}").parse()
         );
     }
