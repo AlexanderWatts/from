@@ -14,14 +14,16 @@ pub trait ProtoVisitor<T> {
 #[derive(Debug, PartialEq)]
 pub struct Element {
     pub element_type: String,
-    pub block: Vec<Proto>,
+    pub attributes: Vec<Proto>,
+    pub children: Vec<Proto>,
 }
 
 impl Element {
-    pub fn new(element_type: &str, block: Vec<Proto>) -> Self {
+    pub fn new(element_type: &str, attributes: Vec<Proto>, children: Vec<Proto>) -> Self {
         Self {
             element_type: String::from(element_type),
-            block,
+            attributes,
+            children,
         }
     }
 }
