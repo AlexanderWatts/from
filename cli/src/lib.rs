@@ -53,7 +53,7 @@ mod cli_tests {
         assert_eq!(
             CliArgs {
                 input_path: PathBuf::from("./main.from"),
-                output_path: PathBuf::from("./"),
+                output_path: PathBuf::from("./from.js"),
             },
             output
         )
