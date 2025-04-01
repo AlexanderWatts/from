@@ -1,6 +1,6 @@
 use estree::{
     JsNode, block_statement::BlockStatement, call_expression::CallExpression,
-    function_declaration::FunctionDeclaration, identifier::Identifier, null_literal::NullLiteral,
+    function_declaration::FunctionDeclaration, identifier::Identifier,
     object_expression::ObjectExpression, object_property::ObjectProperty,
     return_statement::ReturnStatement, string_literal::StringLiteral,
 };
@@ -48,15 +48,18 @@ impl ProtoVisitor<JsNode> for Transpiler {
             &element.element_type,
         ))];
 
-        let mut attributes = ObjectExpression::new(vec![]);
-        let mut elements = vec![];
-
-        element.block.iter().for_each(|ele| {
-            match ele.accept(self) {
-                property @ JsNode::ObjectProperty(_) => attributes.properties.push(property),
-                other @ _ => elements.push(other),
-            };
-        });
+        let attributes = ObjectExpression::new(
+            element
+                .attributes
+                .iter()
+                .map(|ele| ele.accept(self))
+                .collect::<Vec<JsNode>>(),
+        );
+        let elements = element
+            .children
+            .iter()
+            .map(|ele| ele.accept(self))
+            .collect::<Vec<JsNode>>();
 
         arguments.push(JsNode::ObjectExpression(attributes));
         arguments.extend(elements);
@@ -119,6 +122,7 @@ mod transpiler {
             Transpiler.transpile(&Proto::Element(Element::new(
                 "div",
                 vec![Proto::Attribute(Attribute::new("style", "\"color: red;\"")),],
+                vec![],
             )))
         );
     }
@@ -147,7 +151,8 @@ mod transpiler {
             )),
             Transpiler.transpile(&Proto::Element(Element::new(
                 "div",
-                vec![Proto::Element(Element::new("span", vec![]))]
+                vec![],
+                vec![Proto::Element(Element::new("span", vec![], vec![]))]
             )))
         );
     }
