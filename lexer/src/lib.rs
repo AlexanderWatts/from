@@ -70,15 +70,7 @@ impl Lexer {
                 }
 
                 match self.input.get(self.start.get()..self.current.get()) {
-                    Some(word) => match word.into_iter().collect::<String>().as_str() {
-                        "div" => Token::Div,
-                        "span" => Token::Span,
-                        "form" => Token::Form,
-                        "input" => Token::Input,
-                        "p" => Token::P,
-                        "button" => Token::Button,
-                        _ => return Token::Error,
-                    },
+                    Some(word) => Token::Identifier(word.into_iter().collect()),
                     _ => return Token::Error,
                 }
             }
@@ -117,7 +109,7 @@ mod lexer {
     fn tokenize_strings() {
         let lexer = Lexer::new(r#"div {"Hello, 🌎!"}"#);
 
-        assert_eq!(Token::Div, lexer.token());
+        assert_eq!(Token::Identifier("div".to_string()), lexer.token());
         assert_eq!(Token::LeftBrace, lexer.token());
         assert_eq!(Token::Literal("\"Hello, 🌎!\"".to_string()), lexer.token());
         assert_eq!(Token::RightBrace, lexer.token());
@@ -128,7 +120,7 @@ mod lexer {
     fn tokenize_input() {
         let lexer = Lexer::new("div {}");
 
-        assert_eq!(Token::Div, lexer.token());
+        assert_eq!(Token::Identifier("div".to_string()), lexer.token());
         assert_eq!(Token::LeftBrace, lexer.token());
         assert_eq!(Token::RightBrace, lexer.token());
         assert_eq!(Token::End, lexer.token());
@@ -142,9 +134,18 @@ mod lexer {
 
     #[test]
     fn identify_keywords() {
-        assert_eq!(Token::Div, Lexer::new("div").scan());
-        assert_eq!(Token::Span, Lexer::new("span").scan());
-        assert_eq!(Token::Error, Lexer::new("something").scan());
+        assert_eq!(
+            Token::Identifier("div".to_string()),
+            Lexer::new("div").scan()
+        );
+        assert_eq!(
+            Token::Identifier("span".to_string()),
+            Lexer::new("span").scan()
+        );
+        assert_eq!(
+            Token::Identifier("something".to_string()),
+            Lexer::new("something").scan()
+        );
     }
 
     #[test]
