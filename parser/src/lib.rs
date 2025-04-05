@@ -1,5 +1,5 @@
 mod parser_error;
-use html_tag::HtmlTag;
+use html_tag::HtmlElementFactory;
 use parser_error::ParserError;
 use proto::{Attribute, Element, Proto};
 use token::{Token, TokenType};
@@ -19,12 +19,14 @@ mod token_buffer;
 #[derive(Debug)]
 pub struct Parser {
     token_buffer: TokenBuffer,
+    html_factory: HtmlElementFactory,
 }
 
 impl Parser {
     pub fn new(input: &str) -> Self {
         Self {
             token_buffer: TokenBuffer::new(input),
+            html_factory: HtmlElementFactory::new(),
         }
     }
 
@@ -37,9 +39,9 @@ impl Parser {
     }
 
     fn element(&mut self) -> Result<Proto, ParserError> {
-        let element_type = match &self.next_or_err([TokenType::Literal, TokenType::Identifier])? {
+        let html_element = match &self.next_or_err([TokenType::Literal, TokenType::Identifier])? {
             Token::Literal(literal) => return Ok(Proto::Literal(literal.to_owned())),
-            Token::Identifier(identifier) => HtmlTag::try_from(identifier.as_str())?.to_string(),
+            Token::Identifier(identifier) => self.html_factory.create(identifier)?,
             _ => return Err(ParserError::UnexpectedToken),
         };
 
@@ -59,7 +61,8 @@ impl Parser {
         self.next_or_err([TokenType::RightBrace])?;
 
         Ok(Proto::Element(Element::new(
-            &element_type,
+            html_element.id,
+            &html_element.html_tag.to_string(),
             attributes,
             children,
         )))
@@ -134,15 +137,17 @@ mod parser {
     fn parse_elements_with_attributes() {
         assert_eq!(
             Ok(Proto::Element(Element::new(
+                1,
                 "\"span\"",
                 vec![Proto::Attribute(Attribute::new("style", "\"\"")),],
-                vec![Proto::Element(Element::new("\"div\"", vec![], vec![]))]
+                vec![Proto::Element(Element::new(2, "\"div\"", vec![], vec![]))]
             ))),
             Parser::new(r#"span {@style="" div{}}"#).parse(),
         );
 
         assert_eq!(
             Ok(Proto::Element(Element::new(
+                1,
                 "\"span\"",
                 vec![Proto::Attribute(Attribute::new("style", "\"\""))],
                 vec![],
@@ -155,15 +160,16 @@ mod parser {
     fn parse_elements() {
         assert_eq!(
             Ok(Proto::Element(Element::new(
+                1,
                 "\"span\"",
                 vec![],
-                vec![Proto::Element(Element::new("\"div\"", vec![], vec![]))]
+                vec![Proto::Element(Element::new(2, "\"div\"", vec![], vec![]))]
             ))),
             Parser::new("span{div{}}").parse(),
         );
 
         assert_eq!(
-            Ok(Proto::Element(Element::new("\"div\"", vec![], vec![]))),
+            Ok(Proto::Element(Element::new(1, "\"div\"", vec![], vec![]))),
             Parser::new("div {}").parse()
         );
     }
