@@ -1,22 +1,19 @@
 mod parser_error;
+use html_tag::HtmlTag;
 use parser_error::ParserError;
 use proto::{Attribute, Element, Proto};
 use token::{Token, TokenType};
 use token_buffer::TokenBuffer;
+mod html_tag;
 mod token_buffer;
 
 ///
 /// Grammar
 ///
 /// program := element
-/// element := ('div'
-///     | 'span'
-///     | 'p'
-///     | 'form'
-///     | 'input'
-///     | 'button'
-/// ) '{' (element | attribute)* '}' | literal
-/// attribute := '@' LITERAL '=' LITERAL
+/// element := html_tag '{' (element | attribute)* '}' | LITERAL
+/// html_tag := 'div' | 'span' | 'p' | 'form' | 'input' | 'button'
+/// attribute := '@' literal '=' literal
 /// literal := LITERAL
 ///
 #[derive(Debug)]
@@ -32,24 +29,19 @@ impl Parser {
     }
 
     pub fn parse(&mut self) -> Result<Proto, ParserError> {
-        let proto = self.element();
+        let proto = self.element()?;
 
         self.next_or_err([TokenType::End])?;
 
-        proto
+        Ok(proto)
     }
 
     fn element(&mut self) -> Result<Proto, ParserError> {
-        let token = &self.next_or_err([
-            TokenType::Literal,
-            TokenType::Div,
-            TokenType::Span,
-            TokenType::Button,
-            TokenType::P,
-            TokenType::Input,
-            TokenType::Form,
-        ])?;
-        let element_type = TokenType::from(token);
+        let element_type = match &self.next_or_err([TokenType::Literal, TokenType::Identifier])? {
+            Token::Literal(literal) => return Ok(Proto::Literal(literal.to_owned())),
+            Token::Identifier(identifier) => HtmlTag::try_from(identifier.as_str())?.to_string(),
+            _ => return Err(ParserError::UnexpectedToken),
+        };
 
         self.next_or_err([TokenType::LeftBrace])?;
 
@@ -67,7 +59,7 @@ impl Parser {
         self.next_or_err([TokenType::RightBrace])?;
 
         Ok(Proto::Element(Element::new(
-            &element_type.to_string(),
+            &element_type,
             attributes,
             children,
         )))
@@ -89,7 +81,6 @@ impl Parser {
         Ok(Proto::Attribute(Attribute::new(&name, &value)))
     }
 
-    /// This should return a Proto::TextElement
     fn literal(&mut self) -> Result<Proto, ParserError> {
         let value = match self.next_or_err([TokenType::Literal])? {
             Token::Literal(literal) => literal,
@@ -134,8 +125,8 @@ mod parser {
         );
 
         assert_eq!(
-            Ok(Token::Span),
-            Parser::new("span {}").next_or_err([TokenType::Span, TokenType::Div])
+            Ok(Token::Identifier("span".to_string())),
+            Parser::new("span {}").next_or_err([TokenType::Identifier])
         );
     }
 
