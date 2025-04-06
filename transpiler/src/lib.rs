@@ -83,7 +83,7 @@ impl Transpiler {
         JsNode::CallExpression(CallExpression::new(
             JsNode::Identifier(Identifier::new("element")),
             vec![JsNode::StringLiteral(StringLiteral::new(
-                &element.element_type,
+                format!("\"{}\"", &element.element_type).as_str(),
             ))],
         ))
     }

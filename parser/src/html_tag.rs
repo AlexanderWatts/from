@@ -63,6 +63,6 @@ impl Display for HtmlTag {
             HtmlTag::Div => String::from("div"),
             HtmlTag::Span => String::from("span"),
         };
-        write!(f, "\"{}\"", html_tag)
+        write!(f, "{}", html_tag)
     }
 }
