@@ -1,10 +1,12 @@
 mod parser_error;
-use html_tag::HtmlElementFactory;
+use html_tag::HtmlTag;
+use id_generator::IdGenerator;
 use parser_error::ParserError;
-use proto::{Attribute, Element, Proto};
+use proto::{Attribute, Element, Literal, Proto};
 use token::{Token, TokenType};
 use token_buffer::TokenBuffer;
 mod html_tag;
+mod id_generator;
 mod token_buffer;
 
 ///
@@ -19,14 +21,14 @@ mod token_buffer;
 #[derive(Debug)]
 pub struct Parser {
     token_buffer: TokenBuffer,
-    html_factory: HtmlElementFactory,
+    id_generator: IdGenerator,
 }
 
 impl Parser {
     pub fn new(input: &str) -> Self {
         Self {
             token_buffer: TokenBuffer::new(input),
-            html_factory: HtmlElementFactory::new(),
+            id_generator: IdGenerator::new(),
         }
     }
 
@@ -39,9 +41,16 @@ impl Parser {
     }
 
     fn element(&mut self) -> Result<Proto, ParserError> {
-        let html_element = match &self.next_or_err([TokenType::Literal, TokenType::Identifier])? {
-            Token::Literal(literal) => return Ok(Proto::Literal(literal.to_owned())),
-            Token::Identifier(identifier) => self.html_factory.create(identifier)?,
+        let element_id = self.id_generator.generate();
+
+        let element_type = match &self.next_or_err([TokenType::Literal, TokenType::Identifier])? {
+            Token::Literal(literal) => {
+                return Ok(Proto::Literal(Literal::new(
+                    self.id_generator.generate(),
+                    literal,
+                )));
+            }
+            Token::Identifier(identifier) => HtmlTag::try_from(identifier.as_str())?.to_string(),
             _ => return Err(ParserError::UnexpectedToken),
         };
 
@@ -61,8 +70,8 @@ impl Parser {
         self.next_or_err([TokenType::RightBrace])?;
 
         Ok(Proto::Element(Element::new(
-            html_element.id,
-            &html_element.html_tag.to_string(),
+            element_id,
+            &element_type,
             attributes,
             children,
         )))
@@ -90,7 +99,10 @@ impl Parser {
             _ => return Err(ParserError::UnexpectedToken),
         };
 
-        Ok(Proto::Literal(value))
+        Ok(Proto::Literal(Literal::new(
+            self.id_generator.generate(),
+            &value,
+        )))
     }
 
     fn next_or_err<T>(&mut self, expected_token_types: T) -> Result<Token, ParserError>
