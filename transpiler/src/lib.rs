@@ -1,14 +1,33 @@
 use estree::{
     JsNode, block_statement::BlockStatement, call_expression::CallExpression,
     function_declaration::FunctionDeclaration, identifier::Identifier,
-    object_property::ObjectProperty, string_literal::StringLiteral,
+    string_literal::StringLiteral,
 };
-use proto::{Element, Proto, ProtoVisitor};
+use proto::{Element, Proto};
 use std::collections::VecDeque;
 
 pub struct Transpiler;
 
 impl Transpiler {
+    pub fn transpile(&self, root: &Proto) -> JsNode {
+        let block = self.block(root);
+
+        self.function_wrapper(block)
+    }
+
+    /// Wrap the dom tree in a function declararion
+    ///
+    /// ```js
+    /// function dom() {
+    ///     // Block code
+    /// }
+    fn function_wrapper(&self, block: Vec<JsNode>) -> JsNode {
+        JsNode::FunctionDeclaration(FunctionDeclaration::new(
+            Identifier::new("dom"),
+            BlockStatement::new(block),
+        ))
+    }
+
     fn block(&self, proto: &Proto) -> Vec<JsNode> {
         let mut queue: VecDeque<(&Proto, Option<String>)> = VecDeque::new();
         let mut block: Vec<JsNode> = vec![];
@@ -21,7 +40,7 @@ impl Transpiler {
                 Proto::Element(element) => {
                     let id = format!("{}_{}", element.element_type, element.element_id);
 
-                    let instance = proto.accept(self);
+                    let instance = self.visit_element(element);
                     block.push(instance);
 
                     element
@@ -44,7 +63,7 @@ impl Transpiler {
                         ],
                     )));
                 }
-                Proto::Literal(_) => block.push(proto.accept(self)),
+                Proto::Literal(literal) => block.push(self.visit_literal(literal)),
                 Proto::Attribute(attribute) => {
                     block.push(self.visit_attribute(attribute, &parent_id.unwrap()))
                 }
@@ -55,46 +74,10 @@ impl Transpiler {
         block
     }
 
-    fn visit_attribute(&self, attribute: &proto::Attribute, parent_id: &str) -> JsNode {
-        JsNode::CallExpression(CallExpression::new(
-            JsNode::Identifier(Identifier::new("attribute")),
-            vec![
-                JsNode::StringLiteral(StringLiteral::new(parent_id)),
-                JsNode::StringLiteral(StringLiteral::new(&attribute.name)),
-                JsNode::StringLiteral(StringLiteral::new(&attribute.value)),
-            ],
-        ))
-    }
-
-    pub fn transpile(&self, root: &Proto) -> JsNode {
-        let block = self.block(root);
-
-        self.function_wrapper(block)
-    }
-
-    /// Wrap the dom tree in a function declararion
-    ///
-    /// ```js
-    /// function dom() {
-    ///     // Block code
-    /// }
-    fn function_wrapper(&self, block: Vec<JsNode>) -> JsNode {
-        JsNode::FunctionDeclaration(FunctionDeclaration::new(
-            Identifier::new("dom"),
-            BlockStatement::new(block),
-        ))
-    }
-}
-
-impl ProtoVisitor<JsNode> for Transpiler {
     /// The `element` function declaration is provided by the runtime library
     ///
     /// ```js
-    /// element(
-    ///     "div",
-    ///     { class: "" },
-    ///     element("span", {})
-    /// );
+    /// element("div")
     /// ```
     fn visit_element(&self, element: &Element) -> JsNode {
         JsNode::CallExpression(CallExpression::new(
@@ -117,15 +100,20 @@ impl ProtoVisitor<JsNode> for Transpiler {
         ))
     }
 
-    /// NOT USED
+    /// The `attribute` function declaration is provided by the runtime library
+    ///
     /// ```js
-    /// {
-    ///     class: "flex"
-    ///     style: "padding"
-    /// }
+    /// attribute(parent_id, "class", "flex")
     /// ```
-    fn visit_attribute(&self, attribute: &proto::Attribute) -> JsNode {
-        JsNode::ObjectProperty(ObjectProperty::new(&attribute.name, &attribute.value))
+    fn visit_attribute(&self, attribute: &proto::Attribute, parent_id: &str) -> JsNode {
+        JsNode::CallExpression(CallExpression::new(
+            JsNode::Identifier(Identifier::new("attribute")),
+            vec![
+                JsNode::StringLiteral(StringLiteral::new(parent_id)),
+                JsNode::StringLiteral(StringLiteral::new(&attribute.name)),
+                JsNode::StringLiteral(StringLiteral::new(&attribute.value)),
+            ],
+        ))
     }
 }
 
