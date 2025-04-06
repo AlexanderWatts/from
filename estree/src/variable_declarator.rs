@@ -4,15 +4,15 @@ use crate::{JsNode, identifier::Identifier, js_node_type::JsNodeType};
 pub struct VariableDeclarator {
     pub js_node_type: JsNodeType,
     pub identifier: Box<JsNode>,
-    pub initialiser: Box<JsNode>,
+    pub initialiser: Option<Box<JsNode>>,
 }
 
 impl VariableDeclarator {
-    pub fn new(identifier: Identifier, initialiser: JsNode) -> Self {
+    pub fn new(identifier: Identifier, initialiser: Option<JsNode>) -> Self {
         Self {
             js_node_type: JsNodeType::VariableDeclarator,
             identifier: Box::new(JsNode::Identifier(identifier)),
-            initialiser: Box::new(initialiser),
+            initialiser: initialiser.map(Box::new),
         }
     }
 }
