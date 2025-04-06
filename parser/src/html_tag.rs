@@ -2,32 +2,6 @@ use crate::parser_error::ParserError;
 use std::fmt::Display;
 
 #[derive(Debug)]
-pub struct HtmlElementFactory {
-    id: usize,
-}
-
-impl HtmlElementFactory {
-    pub fn new() -> Self {
-        Self { id: 0 }
-    }
-
-    pub fn create(&mut self, tag_type: &str) -> Result<HtmlElement, ParserError> {
-        self.id += 1;
-
-        Ok(HtmlElement {
-            id: self.id,
-            html_tag: HtmlTag::try_from(tag_type)?,
-        })
-    }
-}
-
-#[derive(Debug)]
-pub struct HtmlElement {
-    pub id: usize,
-    pub html_tag: HtmlTag,
-}
-
-#[derive(Debug)]
 pub enum HtmlTag {
     P,
     Form,
