@@ -30,14 +30,21 @@ impl JsVisitor<String> for CodeGenerator {
 
     fn visit_function_declaration(&self, function_declaration: &FunctionDeclaration) -> String {
         let FunctionDeclaration {
-            identifier, body, ..
+            identifier,
+            body,
+            parameters,
+            ..
         } = function_declaration;
 
         let identifier = identifier.accept(self);
-
         let body = body.accept(self);
+        let parameters = parameters
+            .into_iter()
+            .map(|parameter| parameter.accept(self))
+            .collect::<Vec<String>>()
+            .join(", ");
 
-        format!("function {identifier}() {{{body}}}")
+        format!("function {identifier}({parameters}) {{{body}}}")
     }
 
     fn visit_identifier(&self, identifier: &Identifier) -> String {
@@ -177,7 +184,7 @@ mod code_generation {
     #[test]
     fn generate_call_expression_with_members() {
         assert_eq!(
-            r#"document.main.createElement("div")"#,
+            r#"document.main.createElement("div");"#,
             CodeGenerator.generate(&JsNode::CallExpression(CallExpression::new(
                 JsNode::MemberExpression(MemberExpression::new(
                     JsNode::Identifier(Identifier::new("document")),
@@ -197,7 +204,7 @@ mod code_generation {
     #[test]
     fn generate_call_expression() {
         assert_eq!(
-            r#"document.createElement("div")"#,
+            r#"document.createElement("div");"#,
             CodeGenerator.generate(&JsNode::CallExpression(CallExpression::new(
                 JsNode::MemberExpression(MemberExpression::new(
                     JsNode::Identifier(Identifier::new("document")),
@@ -225,6 +232,7 @@ mod code_generation {
             CodeGenerator.generate(&JsNode::FunctionDeclaration(FunctionDeclaration::new(
                 Identifier::new("xyz"),
                 BlockStatement::new(vec![]),
+                vec![]
             )))
         );
     }

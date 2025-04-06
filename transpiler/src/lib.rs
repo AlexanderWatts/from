@@ -28,6 +28,7 @@ impl Transpiler {
         JsNode::FunctionDeclaration(FunctionDeclaration::new(
             Identifier::new("dom"),
             BlockStatement::new(block),
+            vec![JsNode::StringLiteral(StringLiteral::new("target"))],
         ))
     }
 
@@ -196,6 +197,7 @@ mod transpiler {
                         ],
                     ))
                 ))]),
+                vec![],
             )),
             Transpiler.transpile(&Proto::Element(Element::new(
                 1,
@@ -227,6 +229,7 @@ mod transpiler {
                         ],
                     ))
                 ))]),
+                vec![]
             )),
             Transpiler.transpile(&Proto::Element(Element::new(
                 1,
