@@ -120,6 +120,7 @@ mod transpiler {
                 ))]),
             )),
             Transpiler.transpile(&Proto::Element(Element::new(
+                1,
                 "div",
                 vec![Proto::Attribute(Attribute::new("style", "\"color: red;\"")),],
                 vec![],
@@ -150,9 +151,10 @@ mod transpiler {
                 ))]),
             )),
             Transpiler.transpile(&Proto::Element(Element::new(
+                1,
                 "div",
                 vec![],
-                vec![Proto::Element(Element::new("span", vec![], vec![]))]
+                vec![Proto::Element(Element::new(2, "span", vec![], vec![]))]
             )))
         );
     }

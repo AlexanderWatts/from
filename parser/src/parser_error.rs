@@ -4,6 +4,7 @@ use std::{error::Error, fmt::Display};
 pub enum ParserError {
     UnexpectedToken,
     UnknownAttribute,
+    UnknownElement,
 }
 
 impl Error for ParserError {}
@@ -13,6 +14,7 @@ impl Display for ParserError {
         match self {
             ParserError::UnexpectedToken => write!(f, "Unexpected token"),
             ParserError::UnknownAttribute => write!(f, "Unknown attribute"),
+            ParserError::UnknownElement => write!(f, "Unknown element"),
         }
     }
 }
