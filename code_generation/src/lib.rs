@@ -65,7 +65,7 @@ impl JsVisitor<String> for CodeGenerator {
             .collect::<Vec<String>>()
             .join(", ");
 
-        format!("{callee}({arguments})")
+        format!("{callee}({arguments});")
     }
 
     fn visit_member_expression(&self, member_expression: &MemberExpression) -> String {
@@ -111,7 +111,7 @@ impl JsVisitor<String> for CodeGenerator {
         let identifier = identifier.accept(self);
 
         let initialiser = match initialiser {
-            Some(initialiser) => format!(" = {};", initialiser.accept(self)),
+            Some(initialiser) => format!(" = {}", initialiser.accept(self)),
             None => ";".to_string(),
         };
 
