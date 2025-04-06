@@ -109,9 +109,13 @@ impl JsVisitor<String> for CodeGenerator {
         } = variable_declarator;
 
         let identifier = identifier.accept(self);
-        let initialiser = initialiser.accept(self);
 
-        format!("{identifier} = {initialiser}")
+        let initialiser = match initialiser {
+            Some(initialiser) => format!(" = {};", initialiser.accept(self)),
+            None => ";".to_string(),
+        };
+
+        format!("{identifier}{initialiser}")
     }
 
     fn visit_null_literal(&self, null_literal: &NullLiteral) -> String {
@@ -164,7 +168,7 @@ mod code_generation {
                 VariableDeclarationKind::Let,
                 vec![JsNode::VariableDeclarator(VariableDeclarator::new(
                     Identifier::new("x"),
-                    JsNode::StringLiteral(StringLiteral::new("\"hello\""))
+                    Some(JsNode::StringLiteral(StringLiteral::new("\"hello\"")))
                 )),]
             )))
         )
