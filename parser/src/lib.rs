@@ -13,10 +13,10 @@ mod token_buffer;
 /// Grammar
 ///
 /// program := element
-/// element := html_tag '{' (element | attribute)* '}' | LITERAL
+/// element := html_tag '{' (element | attribute)* '}' | literal
 /// html_tag := 'div' | 'span' | 'p' | 'form' | 'input' | 'button'
 /// attribute := '@' literal '=' literal
-/// literal := LITERAL
+/// literal := STRING
 ///
 #[derive(Debug)]
 pub struct Parser {

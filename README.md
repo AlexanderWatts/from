@@ -44,15 +44,10 @@ form {
 
 ```
 program := element
-element := ('div'
-    | 'span'
-    | 'p'
-    | 'form'
-    | 'input'
-    | 'button'
-) element_block | LITERAL
-element_block := '{' (element | attribute)* '}'
-attribute := '@' LITERAL '=' LITERAL ';'
+element := html_tag '{' (element | attribute)* '}' | literal
+html_tag := 'div' | 'span' | 'p' | 'form' | 'input' | 'button'
+attribute := '@' literal '=' literal
+literal := STRING
 ```
 
 ## How
@@ -62,28 +57,49 @@ From introduces a build step for creating frontend applications that transforms 
 Take the following From code:
 
 ```
-div {
-    @class="flex"
-    "Hello, 🌎!"
-    span {}
+form {
+    @method="POST"
+
+    input {
+	    @type="email"
+	    @placeholder="Email"
+    }
+
+    input {
+	    @type="password"
+	    @placeholder="Password"
+    }
+
+    button {
+	    @type="submit"
+	    "Login"
+    }
 }
 ```
 
 This is transformed into:
 
 ```js
-function dom() {
-    return element(
-        "div",
-        {
-            class: "flex"
-        },
-        literal("Hello, 🌎!"),
-        element("span", {})
-    )
+function dom(target) {
+    let form1 = element("form");
+    let input2 = element("input");
+    let input3 = element("input");
+    let button4 = element("button");
+    let t5 = literal("Login");
+	attribute(form1, "method", "POST");
+    attribute(input2, "type", "email");
+    attribute(input2, "placeholder", "Email");
+    attribute(input3, "type", "password");
+    attribute(input3, "placeholder", "Password");
+    attribute(button4, "type", "submit");
+    append(target, form1);
+    append(form1, input2);
+    append(form1, input3);
+    append(form1, button4);
+    append(button4, t5);
 }
 ```
-The From runtime library provides the `element` and `literal` function declarations.
+The From runtime library provides the `element`, `literal`, `attribute` and `append` function declarations.
 
 ## Usage
 
