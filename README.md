@@ -61,18 +61,18 @@ form {
     @method="POST"
 
     input {
-	    @type="email"
-	    @placeholder="Email"
+        @type="email"
+        @placeholder="Email"
     }
 
     input {
-	    @type="password"
-	    @placeholder="Password"
+        @type="password"
+        @placeholder="Password"
     }
 
     button {
-	    @type="submit"
-	    "Login"
+        @type="submit"
+        "Login"
     }
 }
 ```
@@ -86,7 +86,7 @@ function dom(target) {
     let input3 = element("input");
     let button4 = element("button");
     let t5 = literal("Login");
-	attribute(form1, "method", "POST");
+    attribute(form1, "method", "POST");
     attribute(input2, "type", "email");
     attribute(input2, "placeholder", "Email");
     attribute(input3, "type", "password");
