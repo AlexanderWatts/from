@@ -24,8 +24,8 @@ mod end_to_end {
             Err(_) => return eprintln!("Parser error"),
         };
 
-        let js_root = Transformer.transform(&proto_root);
-        let output = CodeGenerator::new().generate(&js_root);
+        let estree = Transformer.transform(&proto_root);
+        let output = CodeGenerator::new().generate(&estree);
 
         assert_eq!(
             r#"function dom(target) {let div1 = element("div");let span2 = element("span");let t3 = literal("Main");attribute(div1, "id", "root");attribute(span2, "id", "nested");append(target, div1);append(div1, span2);append(span2, t3);}"#,
@@ -44,8 +44,8 @@ mod end_to_end {
             Err(_) => return eprintln!("Parser error"),
         };
 
-        let js_root = Transformer.transform(&proto_root);
-        let output = CodeGenerator::new().generate(&js_root);
+        let estree = Transformer.transform(&proto_root);
+        let output = CodeGenerator::new().generate(&estree);
 
         assert_eq!(
             r#"function dom(target) {let div1 = element("div");let t2 = literal("Hello, 🌎!");let span3 = element("span");append(target, div1);append(div1, t2);append(div1, span3);}"#,
