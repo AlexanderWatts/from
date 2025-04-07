@@ -7,7 +7,7 @@ use std::{
     fs,
     io::{self, Write, stderr, stdout},
 };
-use transpiler::Transpiler;
+use transformer::Transformer;
 mod cli_args;
 
 #[derive(ClapParser, Debug)]
@@ -30,8 +30,8 @@ impl Cli {
         let input = fs::read_to_string(input_path)?;
 
         let proto = Parser::new(&input).parse()?;
-        let transpiler = Transpiler;
-        let estree = transpiler.transpile(&proto);
+        let transformer = Transformer;
+        let estree = transformer.transform(&proto);
         let output = CodeGenerator::new().generate(&estree);
 
         let mut output_file = fs::File::create(output_path)?;

@@ -11,10 +11,10 @@ use estree::{
 use proto::{Element, Literal, Proto};
 use std::collections::VecDeque;
 
-pub struct Transpiler;
+pub struct Transformer;
 
-impl Transpiler {
-    pub fn transpile(&self, root: &Proto) -> JsNode {
+impl Transformer {
+    pub fn transform(&self, root: &Proto) -> JsNode {
         let block = self.block(root);
 
         self.function_wrapper(block)
@@ -153,14 +153,14 @@ impl Transpiler {
 }
 
 #[cfg(test)]
-mod transpiler {
+mod transformr {
     use estree::js_node_type::JsNodeType;
     use proto::Attribute;
 
     use super::*;
 
     #[test]
-    fn transpile_element() {
+    fn transform_element() {
         assert_eq!(
             JsNode::CallExpression(CallExpression::new(
                 JsNode::Identifier(Identifier::new("element")),
@@ -169,7 +169,7 @@ mod transpiler {
                     value: "\"div\"".to_string(),
                 })],
             )),
-            Transpiler.visit_element(&Element::new(
+            Transformer.visit_element(&Element::new(
                 1,
                 "div",
                 vec![Proto::Attribute(Attribute::new(
@@ -182,7 +182,7 @@ mod transpiler {
     }
 
     #[test]
-    fn transpile_literal() {
+    fn transform_literal() {
         assert_eq!(
             JsNode::CallExpression(CallExpression::new(
                 JsNode::Identifier(Identifier::new("literal")),
@@ -191,12 +191,12 @@ mod transpiler {
                     value: "Hello, 🌎!".to_string(),
                 })],
             )),
-            Transpiler.visit_literal(&Literal::new(1, "Hello, 🌎!"))
+            Transformer.visit_literal(&Literal::new(1, "Hello, 🌎!"))
         );
     }
 
     #[test]
-    fn transpile_attribute() {
+    fn transform_attribute() {
         assert_eq!(
             JsNode::CallExpression(CallExpression::new(
                 JsNode::Identifier(Identifier::new("attribute")),
@@ -206,7 +206,7 @@ mod transpiler {
                     JsNode::StringLiteral(StringLiteral::new("flex"))
                 ],
             )),
-            Transpiler.visit_attribute(&Attribute::new("class", "flex"), "div1")
+            Transformer.visit_attribute(&Attribute::new("class", "flex"), "div1")
         );
     }
 }

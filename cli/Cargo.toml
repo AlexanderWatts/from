@@ -8,5 +8,5 @@ clap = { version = "4.5.34", features = ["derive"]}
 parser = { path = "../parser" }
 proto = { path = "../proto" }
 estree = { path = "../estree" }
-transpiler = { path = "../transpiler" }
+transformer = { path = "../transformer" }
 code_generation = { path = "../code_generation" }

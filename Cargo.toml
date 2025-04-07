@@ -9,7 +9,7 @@ members = [ "cli",
 	"proto",
 	"tests",
 	"token",
-	"transpiler"
+	"transformer"
 ]
 
 [workspace.package]
