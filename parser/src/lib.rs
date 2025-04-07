@@ -150,9 +150,9 @@ mod parser {
         assert_eq!(
             Ok(Proto::Element(Element::new(
                 1,
-                "\"span\"",
+                "span",
                 vec![Proto::Attribute(Attribute::new("style", "\"\"")),],
-                vec![Proto::Element(Element::new(2, "\"div\"", vec![], vec![]))]
+                vec![Proto::Element(Element::new(2, "div", vec![], vec![]))]
             ))),
             Parser::new(r#"span {@style="" div{}}"#).parse(),
         );
@@ -160,7 +160,7 @@ mod parser {
         assert_eq!(
             Ok(Proto::Element(Element::new(
                 1,
-                "\"span\"",
+                "span",
                 vec![Proto::Attribute(Attribute::new("style", "\"\""))],
                 vec![],
             ))),
@@ -173,15 +173,15 @@ mod parser {
         assert_eq!(
             Ok(Proto::Element(Element::new(
                 1,
-                "\"span\"",
+                "span",
                 vec![],
-                vec![Proto::Element(Element::new(2, "\"div\"", vec![], vec![]))]
+                vec![Proto::Element(Element::new(2, "div", vec![], vec![]))]
             ))),
             Parser::new("span{div{}}").parse(),
         );
 
         assert_eq!(
-            Ok(Proto::Element(Element::new(1, "\"div\"", vec![], vec![]))),
+            Ok(Proto::Element(Element::new(1, "div", vec![], vec![]))),
             Parser::new("div {}").parse()
         );
     }

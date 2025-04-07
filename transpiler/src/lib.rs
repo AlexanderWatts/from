@@ -153,90 +153,59 @@ impl Transpiler {
 
 #[cfg(test)]
 mod transpiler {
-    use estree::{
-        JsNode, block_statement::BlockStatement, call_expression::CallExpression,
-        function_declaration::FunctionDeclaration, identifier::Identifier,
-        object_expression::ObjectExpression, object_property::ObjectProperty,
-        return_statement::ReturnStatement, string_literal::StringLiteral,
-    };
-    use proto::{Attribute, Literal};
+    use estree::js_node_type::JsNodeType;
+    use proto::Attribute;
 
     use super::*;
 
     #[test]
-    fn z() {
-        let _r = Transpiler.block(&Proto::Element(Element::new(
-            1,
-            "div",
-            vec![Proto::Attribute(Attribute::new("style", "\"color: red;\""))],
-            vec![Proto::Element(Element::new(
-                2,
-                "span",
-                vec![Proto::Attribute(Attribute::new("class", "\"flex\""))],
-                vec![Proto::Literal(Literal::new(1, "Hello World!"))],
-            ))],
-        )));
-    }
-
-    #[test]
-    fn transpile_elements_with_attributes() {
+    fn transpile_element() {
         assert_eq!(
-            JsNode::FunctionDeclaration(FunctionDeclaration::new(
-                Identifier::new("dom"),
-                BlockStatement::new(vec![JsNode::ReturnStatement(ReturnStatement::new(
-                    JsNode::CallExpression(CallExpression::new(
-                        JsNode::Identifier(Identifier::new("element")),
-                        vec![
-                            JsNode::StringLiteral(StringLiteral::new("div")),
-                            JsNode::ObjectExpression(ObjectExpression::new(vec![
-                                JsNode::ObjectProperty(ObjectProperty::new(
-                                    "style",
-                                    "\"color: red;\""
-                                ))
-                            ])),
-                        ],
-                    ))
-                ))]),
-                vec![],
+            JsNode::CallExpression(CallExpression::new(
+                JsNode::Identifier(Identifier::new("element")),
+                vec![JsNode::StringLiteral(StringLiteral {
+                    js_node_type: JsNodeType::StringLiteral,
+                    value: "\"div\"".to_string(),
+                })],
             )),
-            Transpiler.transpile(&Proto::Element(Element::new(
+            Transpiler.visit_element(&Element::new(
                 1,
                 "div",
-                vec![Proto::Attribute(Attribute::new("style", "\"color: red;\"")),],
-                vec![],
-            )))
+                vec![Proto::Attribute(Attribute::new(
+                    "\"style\"",
+                    "\"color: red;\""
+                )),],
+                vec![]
+            ))
         );
     }
 
     #[test]
-    fn transpile_elements() {
+    fn transpile_literal() {
         assert_eq!(
-            JsNode::FunctionDeclaration(FunctionDeclaration::new(
-                Identifier::new("dom"),
-                BlockStatement::new(vec![JsNode::ReturnStatement(ReturnStatement::new(
-                    JsNode::CallExpression(CallExpression::new(
-                        JsNode::Identifier(Identifier::new("element")),
-                        vec![
-                            JsNode::StringLiteral(StringLiteral::new("div")),
-                            JsNode::ObjectExpression(ObjectExpression::new(vec![])),
-                            JsNode::CallExpression(CallExpression::new(
-                                JsNode::Identifier(Identifier::new("element")),
-                                vec![
-                                    JsNode::StringLiteral(StringLiteral::new("span")),
-                                    JsNode::ObjectExpression(ObjectExpression::new(vec![])),
-                                ],
-                            )),
-                        ],
-                    ))
-                ))]),
-                vec![]
+            JsNode::CallExpression(CallExpression::new(
+                JsNode::Identifier(Identifier::new("literal")),
+                vec![JsNode::StringLiteral(StringLiteral {
+                    js_node_type: JsNodeType::StringLiteral,
+                    value: "Hello, 🌎!".to_string(),
+                })],
             )),
-            Transpiler.transpile(&Proto::Element(Element::new(
-                1,
-                "div",
-                vec![],
-                vec![Proto::Element(Element::new(2, "span", vec![], vec![]))]
-            )))
+            Transpiler.visit_literal(&Literal::new(1, "Hello, 🌎!"))
+        );
+    }
+
+    #[test]
+    fn transpile_attribute() {
+        assert_eq!(
+            JsNode::CallExpression(CallExpression::new(
+                JsNode::Identifier(Identifier::new("attribute")),
+                vec![
+                    JsNode::StringLiteral(StringLiteral::new("div1")),
+                    JsNode::StringLiteral(StringLiteral::new("\"class\"")),
+                    JsNode::StringLiteral(StringLiteral::new("flex"))
+                ],
+            )),
+            Transpiler.visit_attribute(&Attribute::new("class", "flex"), "div1")
         );
     }
 }
