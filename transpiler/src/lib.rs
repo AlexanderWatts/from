@@ -95,6 +95,7 @@ impl Transpiler {
                     )));
                 }
                 Proto::Attribute(attribute) => {
+                    // Handle unwrap
                     block.push(self.visit_attribute(attribute, &parent_id.unwrap()))
                 }
             }
