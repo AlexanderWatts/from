@@ -28,7 +28,7 @@ mod end_to_end {
         let output = CodeGenerator::new().generate(&js_root);
 
         assert_eq!(
-            r#"function dom() {return element("div", {id: "root"}, element("span", {id: "nested"}, literal("Main")))}"#,
+            r#"function dom(target) {let div1 = element("div");let span2 = element("span");let t3 = literal("Main");attribute(div1, "id", "root");attribute(span2, "id", "nested");append(target, div1);append(div1, span2);append(span2, t3);}"#,
             output
         );
     }
@@ -48,7 +48,7 @@ mod end_to_end {
         let output = CodeGenerator::new().generate(&js_root);
 
         assert_eq!(
-            r#"function dom() {return element("div", {}, literal("Hello, 🌎!"), element("span", {}))}"#,
+            r#"function dom(target) {let div1 = element("div");let t2 = literal("Hello, 🌎!");let span3 = element("span");append(target, div1);append(div1, t2);append(div1, span3);}"#,
             output
         );
     }
