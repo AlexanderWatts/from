@@ -1,5 +1,5 @@
 [package]
-name = "transpiler"
+name = "transformer"
 version.workspace = true
 edition.workspace = true
 

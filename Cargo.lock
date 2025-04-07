@@ -101,7 +101,7 @@ dependencies = [
  "estree",
  "parser",
  "proto",
- "transpiler",
+ "transformer",
 ]
 
 [[package]]
@@ -125,7 +125,7 @@ dependencies = [
  "estree",
  "parser",
  "proto",
- "transpiler",
+ "transformer",
 ]
 
 [[package]]
@@ -217,7 +217,7 @@ name = "token"
 version = "0.1.0"
 
 [[package]]
-name = "transpiler"
+name = "transformer"
 version = "0.1.0"
 dependencies = [
  "estree",

@@ -2,7 +2,7 @@
 mod end_to_end {
     use code_generation::CodeGenerator;
     use parser::Parser;
-    use transpiler::Transpiler;
+    use transformer::Transformer;
 
     #[test]
     fn create_elements_with_attributes() {
@@ -24,7 +24,7 @@ mod end_to_end {
             Err(_) => return eprintln!("Parser error"),
         };
 
-        let js_root = Transpiler.transpile(&proto_root);
+        let js_root = Transformer.transform(&proto_root);
         let output = CodeGenerator::new().generate(&js_root);
 
         assert_eq!(
@@ -44,7 +44,7 @@ mod end_to_end {
             Err(_) => return eprintln!("Parser error"),
         };
 
-        let js_root = Transpiler.transpile(&proto_root);
+        let js_root = Transformer.transform(&proto_root);
         let output = CodeGenerator::new().generate(&js_root);
 
         assert_eq!(
