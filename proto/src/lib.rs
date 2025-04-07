@@ -1,14 +1,29 @@
 #[derive(Debug, PartialEq)]
 pub enum Proto {
     Element(Element),
-    Literal(String),
+    Literal(Literal),
     Attribute(Attribute),
 }
 
 pub trait ProtoVisitor<T> {
     fn visit_element(&self, element: &Element) -> T;
-    fn visit_literal(&self, literal: &String) -> T;
+    fn visit_literal(&self, literal: &Literal) -> T;
     fn visit_attribute(&self, attribute: &Attribute) -> T;
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Literal {
+    pub literal_id: usize,
+    pub literal: String,
+}
+
+impl Literal {
+    pub fn new(literal_id: usize, literal: &str) -> Self {
+        Self {
+            literal_id,
+            literal: literal.to_string(),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -54,7 +69,7 @@ impl Proto {
     pub fn accept<T>(&self, visitor: &impl ProtoVisitor<T>) -> T {
         match self {
             Self::Element(element) => visitor.visit_element(element),
-            Self::Literal(string) => visitor.visit_literal(string),
+            Self::Literal(literal) => visitor.visit_literal(literal),
             Self::Attribute(attribute) => visitor.visit_attribute(attribute),
         }
     }
