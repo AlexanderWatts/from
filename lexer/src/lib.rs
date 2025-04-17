@@ -32,6 +32,7 @@ impl Lexer {
             Some('{') => Token::LeftBrace,
             Some('}') => Token::RightBrace,
             Some('=') => Token::Equal,
+            Some(';') => Token::Semicolon,
             Some('@') => {
                 while let Some('a'..='z') = self.peek_char() {
                     self.next_char();
@@ -98,11 +99,12 @@ mod lexer {
 
     #[test]
     fn tokenize_attributes() {
-        let lexer = Lexer::new(r#"@action="/api""#);
+        let lexer = Lexer::new(r#"@action="/api";"#);
 
         assert_eq!(Token::Attribute("action".to_string()), lexer.token());
         assert_eq!(Token::Equal, lexer.token());
         assert_eq!(Token::Literal("\"/api\"".to_string()), lexer.token());
+        assert_eq!(Token::Semicolon, lexer.token());
     }
 
     #[test]
