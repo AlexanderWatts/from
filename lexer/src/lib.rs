@@ -1,5 +1,5 @@
 use std::cell::Cell;
-use token::Token;
+use token::{Keyword, Token};
 
 #[derive(Debug, PartialEq)]
 pub struct Lexer {
@@ -71,7 +71,10 @@ impl Lexer {
                 }
 
                 match self.input.get(self.start.get()..self.current.get()) {
-                    Some(word) => Token::Identifier(word.into_iter().collect()),
+                    Some(word) => match word.into_iter().collect::<String>().as_str() {
+                        "let" => Token::Keyword(Keyword::Let),
+                        _ => Token::Identifier(word.into_iter().collect()),
+                    },
                     _ => return Token::Error,
                 }
             }
@@ -96,6 +99,16 @@ impl Lexer {
 #[cfg(test)]
 mod lexer {
     use super::*;
+
+    #[test]
+    fn tokenize_variables() {
+        let lexer = Lexer::new(r#"let data = "hello""#);
+
+        assert_eq!(Token::Keyword(Keyword::Let), lexer.token());
+        assert_eq!(Token::Identifier("data".to_string()), lexer.token());
+        assert_eq!(Token::Equal, lexer.token());
+        assert_eq!(Token::Literal("\"hello\"".to_string()), lexer.token());
+    }
 
     #[test]
     fn tokenize_attributes() {
